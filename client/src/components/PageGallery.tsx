@@ -144,17 +144,6 @@ function PhoneMockup({ children }: { children: ReactNode }) {
   );
 }
 
-/**
- * Background behind the device mock-ups: two soft glows of the brand colors over a light
- * indigo-to-blue wash. Built on the theme variables, so it adapts to light and dark mode.
- */
-// Mixed in sRGB: mixing with "transparent" in OKLCH shifts the hue towards pink.
-const STAGE_BACKGROUND = [
-  'radial-gradient(55% 75% at 12% 8%, color-mix(in srgb, var(--primary) 26%, transparent), transparent 70%)',
-  'radial-gradient(55% 75% at 92% 95%, color-mix(in srgb, var(--info) 24%, transparent), transparent 70%)',
-  'linear-gradient(135deg, color-mix(in srgb, var(--primary) 9%, var(--background)), color-mix(in srgb, var(--info) 9%, var(--background)))',
-].join(', ');
-
 /** A Figma-like frame label: "# Phone — 375 × 812", small and grey above the frame. */
 function FrameLabel({ icon: Icon, name, size }: { icon: typeof Monitor; name: string; size: string }) {
   return (
@@ -193,8 +182,8 @@ function ScreenshotViewer({ desktopSrc, mobileSrc }: { desktopSrc: string; mobil
 
   return (
     <div className="space-y-3">
-      {/* A stage in the colors of the app (indigo → light blue, with soft glows), the two frames side by side. */}
-      <div className="rounded-xl border p-5 sm:p-8" style={{ background: STAGE_BACKGROUND }}>
+      {/* A plain, very light stage with a hint of the brand indigo: calm next to any analyzed site. */}
+      <div className="rounded-xl border bg-[oklch(0.975_0.006_275)] p-5 sm:p-8 dark:bg-[oklch(0.22_0.012_275)]">
         <div className="grid items-end gap-8 md:grid-cols-[minmax(0,1fr)_15rem]">
           <figure className="space-y-3">
             <FrameLabel icon={Monitor} name={t('report.screenshots.desktop')} size="1366 × 900" />
