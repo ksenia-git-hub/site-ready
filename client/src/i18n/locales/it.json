@@ -1,0 +1,708 @@
+{
+  "app": {
+    "name": "Site Ready",
+    "tagline": "Controllo completo prima della messa online",
+    "language": "Lingua",
+    "apiOffline": "Il server API non risponde. Avvialo con:",
+    "scanFailed": "Scansione non riuscita.",
+    "theme": {
+      "label": "Tema",
+      "light": "Chiaro",
+      "dark": "Scuro",
+      "system": "Automatico"
+    }
+  },
+  "form": {
+    "title": "Controlla un sito",
+    "intro": "Link, immagini, SEO, mobile, privacy e cookie, accessibilità e contenuti dimenticati: inserisci l’indirizzo e ottieni un report con i problemi da correggere.",
+    "urlLabel": "Indirizzo del sito",
+    "urlPlaceholder": "https://www.esempio.it",
+    "pagesLabel": "Pagine da analizzare",
+    "onlyThisPage": "Solo questa pagina",
+    "upTo": "Fino a {{count}}",
+    "submit": "Avvia scansione",
+    "titleHighlight": "prima di consegnarlo"
+  },
+  "progress": {
+    "title": "Scansione in corso",
+    "hint": "Di solito ci vogliono da qualche secondo a un paio di minuti, in base al numero di pagine.",
+    "steps": {
+      "queued": "In attesa di avvio",
+      "starting": "Avvio del browser",
+      "pages": "Analisi delle pagine ({{done}}/{{total}})",
+      "links": "Controllo dei link ({{done}}/{{total}})",
+      "images": "Controllo delle immagini ({{done}}/{{total}})"
+    },
+    "stepNames": {
+      "starting": "Avvio",
+      "pages": "Pagine",
+      "links": "Link",
+      "images": "Immagini"
+    },
+    "cancel": "Interrompi scansione",
+    "cancelled": "Scansione interrotta"
+  },
+  "report": {
+    "title": "Report di qualità",
+    "print": "Stampa / salva PDF",
+    "newScan": "Nuova scansione",
+    "stats": {
+      "pagesScanned": "Pagine analizzate",
+      "linksChecked": "Link controllati",
+      "imagesChecked": "Immagini controllate",
+      "duration": "Durata"
+    },
+    "filters": {
+      "label": "Filtri",
+      "category": "Categoria",
+      "severity": "Gravità",
+      "all": "Tutte",
+      "showing": "Sezione: {{category}}",
+      "clear": "Mostra tutte le sezioni"
+    },
+    "noIssues": "Nessun problema trovato: il sito ha superato tutti i controlli.",
+    "noIssuesFiltered": "Nessun problema con i filtri selezionati.",
+    "pagesList": "Pagine analizzate ({{count}})",
+    "fix": "Come risolvere:",
+    "technicalDetails": "Dettagli tecnici",
+    "andMore_one": "…e un’altra",
+    "andMore_other": "…e altre {{count}}",
+    "score": {
+      "label": "Punteggio di qualità",
+      "hint": "Più alto è il punteggio, meglio è. Pesano soprattutto i problemi critici, poi gli avvisi, in base a quante pagine riguardano; i suggerimenti tolgono solo 1–2 punti.",
+      "excellent": "Ottimo",
+      "good": "Buono",
+      "fair": "Si può migliorare",
+      "poor": "Da sistemare",
+      "scale": "90–100 ottimo · 75–89 buono · 50–74 si può migliorare · sotto 50 da sistemare"
+    },
+    "byCategory": "Problemi per categoria",
+    "issues": "Problemi trovati",
+    "search": "Cerca per URL o testo…",
+    "occurrences_one": "{{count}} volta",
+    "occurrences_other": "{{count}} volte",
+    "copy": "Copia la soluzione",
+    "copied": "Soluzione copiata negli appunti",
+    "expandAll": "Espandi tutto",
+    "collapseAll": "Comprimi tutto",
+    "allGood": "Tutto a posto!",
+    "screenshots": {
+      "title": "Adattamento ai dispositivi mobili",
+      "desktop": "Desktop",
+      "mobile": "Telefono",
+      "open": "Apri lo screenshot",
+      "unavailable": "Screenshot non disponibile",
+      "scrollHint": "Scorri il sito dentro gli schermi del portatile e del telefono",
+      "syncScroll": "Scorri insieme"
+    },
+    "a11yNote": "I controlli automatici di accessibilità trovano solo una parte dei problemi: non sostituiscono una verifica manuale e non garantiscono la conformità alle norme.",
+    "metrics": {
+      "title": "Velocità",
+      "ttfb": "Risposta del server",
+      "lcp": "Contenuto principale",
+      "cls": "Stabilità del layout",
+      "load": "Caricamento completo",
+      "weight": "Peso della pagina",
+      "requests": "Richieste",
+      "note": "Misurato dal server di scansione, senza limitare la connessione: su un telefono con rete mobile i tempi saranno più lunghi.",
+      "rating": {
+        "good": "Buono",
+        "needsImprovement": "Da migliorare",
+        "poor": "Scarso"
+      },
+      "units": {
+        "ms": "{{value}} ms",
+        "s": "{{value}} s",
+        "kb": "{{value}} KB",
+        "mb": "{{value}} MB"
+      }
+    },
+    "showLess": "Mostra meno",
+    "priorities": {
+      "title": "Cosa sistemare per primo",
+      "subtitle": "I problemi che pesano di più: iniziate da questi.",
+      "why": "Perché è importante:",
+      "pages": "Pagine: {{count, number}} su {{total, number}}",
+      "show": "Dettagli",
+      "allGoodTitle": "Nessun problema serio",
+      "allGood": "Il sito si può consegnare al cliente. Più sotto trovate solo suggerimenti facoltativi.",
+      "wholeSite": "Tutto il sito"
+    },
+    "categoryCount": "Problemi: {{count, number}}",
+    "categoryEmpty": "Nella sezione «{{category}}» non sono stati trovati problemi."
+  },
+  "duration": {
+    "seconds": "{{seconds}} s",
+    "minutes": "{{minutes}} min {{seconds}} s"
+  },
+  "categories": {
+    "links": "Link",
+    "images": "Immagini",
+    "seo": "SEO",
+    "mobile": "Mobile",
+    "technical": "Tecnico",
+    "content": "Contenuti",
+    "legal": "Legale",
+    "accessibility": "Accessibilità",
+    "performance": "Velocità"
+  },
+  "severity": {
+    "critical": "Critico",
+    "warning": "Avviso",
+    "info": "Info"
+  },
+  "severityPlural": {
+    "critical": "Critici",
+    "warning": "Avvisi",
+    "info": "Suggerimenti"
+  },
+  "warnings": {
+    "pageLimit_one": "Limite di pagine raggiunto ({{max}}): {{count}} pagina trovata non è stata analizzata, ma i suoi link sono stati controllati.",
+    "pageLimit_other": "Limite di pagine raggiunto ({{max}}): {{count}} pagine trovate non sono state analizzate, ma i loro link sono stati controllati.",
+    "linkLimit": "Link trovati: {{count}}. Sono stati controllati solo i primi {{max}}.",
+    "imageLimit": "Immagini trovate: {{count}}. Sono state controllate solo le prime {{max}}."
+  },
+  "errors": {
+    "timeout": "nessuna risposta entro {{seconds}} secondi",
+    "dns": "dominio inesistente o DNS non raggiungibile",
+    "refused": "connessione rifiutata dal server",
+    "reset": "connessione interrotta dal server",
+    "certExpired": "certificato SSL scaduto",
+    "certInvalid": "certificato SSL non valido",
+    "http": "HTTP {{status}}",
+    "notHtml": "non è una pagina HTML",
+    "noResponse": "nessuna risposta dal server",
+    "other": "{{message}}"
+  },
+  "scanError": {
+    "startPage": "Impossibile aprire {{url}}: {{reason}}.",
+    "unexpected": "Errore imprevisto: {{reason}}"
+  },
+  "api": {
+    "invalidUrl": "Indirizzo non valido: inserisci un URL come https://www.esempio.it",
+    "scanNotFound": "Scansione non trovata (forse il server è stato riavviato).",
+    "notFound": "Risorsa non trovata.",
+    "httpError": "Errore del server (HTTP {{status}}).",
+    "network": "Impossibile contattare il server.",
+    "notCancellable": "La scansione è già terminata."
+  },
+  "lists": {
+    "foundOn_one": "Presente in {{count}} pagina:",
+    "foundOn_other": "Presente in {{count}} pagine:",
+    "pages": "Pagine:",
+    "images": "Immagini:",
+    "elements": "Elementi che sporgono:",
+    "errors": "Errori:",
+    "resources": "File:",
+    "snippets": "Testo trovato:",
+    "urls": "Indirizzi:",
+    "items": "Trovati:",
+    "trackers": "Strumenti di tracciamento:",
+    "tags": "Tag mancanti:",
+    "nodes": "Elementi coinvolti ({{count}}):",
+    "cookies": "Cookie salvati senza consenso:"
+  },
+  "issues": {
+    "links": {
+      "notFoundInternal": {
+        "title": "Link rotto (pagina non trovata)",
+        "description": "Il link {{url}} restituisce HTTP {{status}}: la pagina non esiste.",
+        "fix": "Correggi l’indirizzo del link, ripristina la pagina o aggiungi un redirect 301."
+      },
+      "notFoundExternal": {
+        "title": "Link esterno rotto",
+        "description": "Il link {{url}} restituisce HTTP {{status}}: la pagina non esiste.",
+        "fix": "Aggiorna il link con l’indirizzo corretto o rimuovilo."
+      },
+      "unreachable": {
+        "title": "Link non raggiungibile",
+        "description": "Il link {{url}} non risponde: {{reasonText}}.",
+        "fix": "Verifica che l’indirizzo sia corretto e che il sito di destinazione sia online."
+      },
+      "serverErrorInternal": {
+        "title": "Errore del server",
+        "description": "Il link {{url}} restituisce HTTP {{status}}.",
+        "fix": "Controlla i log del server: la pagina va in errore."
+      },
+      "serverErrorExternal": {
+        "title": "Errore del server esterno",
+        "description": "Il link {{url}} restituisce HTTP {{status}}.",
+        "fix": "Il sito esterno ha un problema: riprova più tardi o sostituisci il link."
+      },
+      "blocked": {
+        "title": "Link esterno non verificabile",
+        "description": "Il sito esterno ha rifiutato la verifica automatica di {{url}} (HTTP {{status}}).",
+        "fix": "Apri il link a mano per controllare che funzioni."
+      },
+      "httpError": {
+        "title": "Link con errore HTTP {{status}}",
+        "description": "Il link {{url}} restituisce HTTP {{status}}.",
+        "fix": "Verifica che il link punti alla risorsa giusta e che sia accessibile ai visitatori."
+      },
+      "slowResponse": {
+        "title": "Pagina molto lenta",
+        "description": "Il link {{url}} funziona, ma la pagina risponde solo dopo {{seconds}} s: molti visitatori se ne vanno prima.",
+        "fix": "Controlla perché questa pagina è così lenta (query pesanti, troppi prodotti, nessuna cache) e attiva la cache delle pagine."
+      }
+    },
+    "images": {
+      "broken": {
+        "title": "Immagine non caricata",
+        "description": "Il file {{url}} non è disponibile: {{reasonText}}.",
+        "fix": "Carica di nuovo il file o correggi il percorso dell’immagine."
+      },
+      "heavy": {
+        "title": "Immagine troppo pesante",
+        "description": "Il file {{url}} pesa {{size}} (oltre {{limit}}).",
+        "fix": "Comprimi l’immagine o convertila in WebP/AVIF: rallenta il caricamento, soprattutto su mobile."
+      },
+      "altMissing": {
+        "title": "Immagini senza testo alternativo",
+        "description_one": "{{count}} immagine non ha l’attributo alt.",
+        "description_other": "{{count}} immagini non hanno l’attributo alt.",
+        "fix": "Aggiungi un alt che descriva l’immagine. Per le immagini solo decorative usa alt=\"\" (vuoto)."
+      },
+      "oversized": {
+        "title": "Immagini più grandi del necessario",
+        "description_one": "{{count}} immagine è molto più larga di come viene mostrata (larghezza del file → larghezza mostrata).",
+        "description_other": "{{count}} immagini sono molto più larghe di come vengono mostrate (larghezza del file → larghezza mostrata).",
+        "fix": "Ridimensiona le immagini alla dimensione reale di visualizzazione (o usa srcset) per velocizzare il caricamento."
+      }
+    },
+    "seo": {
+      "titleMissing": {
+        "title": "Titolo della pagina mancante",
+        "description": "La pagina non ha un tag <title>, oppure è vuoto.",
+        "fix": "Aggiungi un titolo unico e descrittivo di {{min}}–{{max}} caratteri."
+      },
+      "titleTooShort": {
+        "title": "Titolo troppo corto",
+        "description_one": "Il titolo «{{title}}» è di {{count}} carattere.",
+        "description_other": "Il titolo «{{title}}» è di {{count}} caratteri.",
+        "fix": "Usa un titolo di almeno {{min}} caratteri che descriva il contenuto della pagina."
+      },
+      "titleTooLong": {
+        "title": "Titolo troppo lungo",
+        "description_one": "Il titolo «{{title}}» è di {{count}} carattere.",
+        "description_other": "Il titolo «{{title}}» è di {{count}} caratteri.",
+        "fix": "Accorcia il titolo a {{max}} caratteri al massimo: Google taglia quelli più lunghi."
+      },
+      "titleDuplicate": {
+        "title": "Titolo duplicato su più pagine",
+        "description_one": "Il titolo «{{title}}» è usato da {{count}} pagina.",
+        "description_other": "Il titolo «{{title}}» è usato da {{count}} pagine.",
+        "fix": "Dai a ogni pagina un titolo unico che ne descriva il contenuto."
+      },
+      "descriptionMissing": {
+        "title": "Meta description mancante",
+        "description": "La pagina non ha il tag <meta name=\"description\">.",
+        "fix": "Aggiungi una descrizione di {{min}}–{{max}} caratteri: è il testo mostrato sotto il titolo nei risultati di ricerca."
+      },
+      "descriptionLength": {
+        "title": "Lunghezza della meta description non ottimale",
+        "description_one": "La meta description è di {{count}} carattere.",
+        "description_other": "La meta description è di {{count}} caratteri.",
+        "fix": "La lunghezza consigliata è {{min}}–{{max}} caratteri."
+      },
+      "h1Missing": {
+        "title": "Nessun titolo H1",
+        "description": "La pagina non contiene un elemento <h1>.",
+        "fix": "Aggiungi un solo <h1> con il titolo principale della pagina."
+      },
+      "h1Multiple": {
+        "title": "Più titoli H1",
+        "description_one": "La pagina contiene {{count}} elemento <h1>.",
+        "description_other": "La pagina contiene {{count}} elementi <h1>.",
+        "fix": "Di solito è meglio un solo <h1>; usa <h2>–<h6> per i sottotitoli."
+      },
+      "langMissing": {
+        "title": "Lingua della pagina non indicata",
+        "description": "Il tag <html> non ha l’attributo lang.",
+        "fix": "Aggiungi la lingua, ad esempio <html lang=\"it\">: aiuta motori di ricerca e screen reader."
+      },
+      "noindex": {
+        "title": "Pagina esclusa dai motori di ricerca",
+        "description": "La pagina ha <meta name=\"robots\" content=\"{{robots}}\">: Google non la indicizzerà.",
+        "fix": "Se il sito è pronto per la pubblicazione, rimuovi «noindex»: spesso resta attivo dalla fase di sviluppo."
+      },
+      "faviconMissing": {
+        "title": "Favicon mancante",
+        "description": "Il sito non ha un’icona per la scheda del browser (né <link rel=\"icon\"> né /favicon.ico).",
+        "fix": "Aggiungi una favicon (almeno 32×32 px) e dichiarala con <link rel=\"icon\" href=\"/favicon.ico\">."
+      },
+      "socialPreviewMissing": {
+        "title": "Anteprima social incompleta",
+        "description": "Quando il link viene condiviso su WhatsApp, Facebook o LinkedIn mancano il titolo o l’immagine di anteprima.",
+        "fix": "Aggiungi i meta tag Open Graph og:title, og:description e og:image (immagine da 1200×630 px)."
+      },
+      "robotsBlocksAll": {
+        "title": "robots.txt blocca tutto il sito",
+        "description": "Il file {{url}} contiene «Disallow: /» per tutti i motori di ricerca: Google non può leggere nessuna pagina.",
+        "fix": "Rimuovi «Disallow: /»: di solito è rimasto dalla versione di staging."
+      },
+      "robotsMissing": {
+        "title": "robots.txt mancante",
+        "description": "Il file {{url}} non esiste.",
+        "fix": "Crea un robots.txt che indichi almeno l’indirizzo della sitemap (riga «Sitemap: …»)."
+      },
+      "sitemapMissing": {
+        "title": "Sitemap XML mancante",
+        "description": "Non è stata trovata una sitemap, né indicata in robots.txt né in /sitemap.xml.",
+        "fix": "Genera una sitemap.xml (quasi tutti i CMS lo fanno con un plugin) e inviala a Google Search Console."
+      },
+      "soft404": {
+        "title": "Le pagine inesistenti rispondono «200 OK»",
+        "description": "L’indirizzo {{url}} non esiste, ma il server risponde «200 OK» invece di «404».",
+        "fix": "Configura il server perché le pagine inesistenti restituiscano il codice 404, con una pagina d’errore personalizzata."
+      }
+    },
+    "mobile": {
+      "viewportMissing": {
+        "title": "Meta viewport mancante",
+        "description": "La pagina non ha <meta name=\"viewport\">: sui telefoni viene mostrata in miniatura, come su un monitor.",
+        "fix": "Aggiungi <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> nel <head>."
+      },
+      "horizontalScroll": {
+        "title": "Scorrimento orizzontale su mobile",
+        "description": "Su uno schermo largo {{viewportWidth}}px la pagina è larga {{scrollWidth}}px, quindi scorre di lato.",
+        "fix": "Correggi gli elementi più larghi dello schermo (larghezze fisse, immagini senza max-width: 100%, tabelle)."
+      }
+    },
+    "technical": {
+      "jsErrors": {
+        "title": "Errori JavaScript nella pagina",
+        "description": "Durante il caricamento la pagina genera errori JavaScript non gestiti: alcune funzioni potrebbero non funzionare.",
+        "fix": "Apri la console del browser (F12) su questa pagina e correggi gli errori indicati."
+      },
+      "failedResources": {
+        "title": "File della pagina non caricati",
+        "description": "Alcuni file usati dalla pagina (script, fogli di stile, font) non si caricano.",
+        "fix": "Correggi i percorsi o carica di nuovo i file mancanti sul server."
+      },
+      "mixedContent": {
+        "title": "Contenuti non sicuri (mixed content)",
+        "description": "La pagina è in HTTPS ma carica file in HTTP: il browser li blocca o mostra il sito come «non sicuro».",
+        "fix": "Cambia gli indirizzi di questi file da http:// a https://."
+      },
+      "noHttps": {
+        "title": "Sito senza HTTPS",
+        "description": "Il sito {{url}} è servito in HTTP: i browser lo segnalano come «Non sicuro».",
+        "fix": "Attiva un certificato SSL (Let’s Encrypt è gratuito) e reindirizza tutto su https://."
+      },
+      "httpNotRedirected": {
+        "title": "La versione HTTP non porta su HTTPS",
+        "description": "Chi apre {{url}} resta sulla versione non sicura del sito.",
+        "fix": "Aggiungi un redirect 301 da http:// a https:// per tutte le pagine."
+      },
+      "certExpiring": {
+        "title": "Certificato SSL in scadenza",
+        "description_one": "Il certificato scade il {{date}}, tra {{count}} giorno.",
+        "description_other": "Il certificato scade il {{date}}, tra {{count}} giorni.",
+        "fix": "Rinnova il certificato o attiva il rinnovo automatico."
+      },
+      "default404Page": {
+        "title": "Pagina 404 non personalizzata",
+        "description": "Chi apre un indirizzo inesistente (per esempio {{url}}) vede la pagina di errore standard del server, senza menu né link per tornare al sito.",
+        "fix": "Crea una pagina 404 con il logo, il menu, un link alla home e magari una ricerca, così il visitatore non abbandona il sito."
+      }
+    },
+    "content": {
+      "placeholderText": {
+        "title": "Testo segnaposto (lorem ipsum)",
+        "description": "La pagina contiene ancora testo finto di esempio.",
+        "fix": "Sostituisci il testo segnaposto con i contenuti definitivi."
+      },
+      "devLinks": {
+        "title": "Link a siti di sviluppo o staging",
+        "description": "La pagina punta a indirizzi che esistono solo in fase di sviluppo (localhost, staging, IP locali).",
+        "fix": "Sostituisci questi indirizzi con quelli del sito definitivo."
+      },
+      "defaultCmsText": {
+        "title": "Contenuti di esempio del CMS",
+        "description": "Sono rimasti i testi creati dall’installazione del CMS, come «Hello world!» o «Pagina di esempio».",
+        "fix": "Elimina articoli e pagine di esempio e cambia il motto del sito."
+      },
+      "placeholderContact": {
+        "title": "Contatti di esempio",
+        "description": "La pagina mostra indirizzi email o numeri di telefono finti.",
+        "fix": "Inserisci i contatti reali del cliente."
+      },
+      "todoText": {
+        "title": "Note di lavoro visibili",
+        "description": "Nel testo della pagina sono rimaste note come «TODO» o «FIXME».",
+        "fix": "Completa o rimuovi le parti segnate come da fare."
+      }
+    },
+    "legal": {
+      "privacyMissing": {
+        "title": "Privacy policy non trovata",
+        "description": "In nessuna delle pagine analizzate c’è un link o un testo che rimandi all’informativa privacy.",
+        "fix": "Pubblica l’informativa privacy (obbligatoria per il GDPR nell’UE e per la legge 152-ФЗ in Russia) e collegala nel footer di tutte le pagine."
+      },
+      "cookiePolicyMissing": {
+        "title": "Cookie policy non trovata",
+        "description": "Non è stato trovato un link alla cookie policy.",
+        "fix": "Pubblica la cookie policy e collegala nel footer, anche se il sito usa solo cookie tecnici."
+      },
+      "cookieBannerMissing": {
+        "title": "Tracciamento senza banner cookie",
+        "description": "Il sito usa strumenti di tracciamento, ma non è stato trovato un banner per il consenso ai cookie.",
+        "fix": "Aggiungi un banner che blocchi i tracciamenti finché il visitatore non dà il consenso (es. iubenda, Cookiebot, Complianz)."
+      },
+      "vatMissing": {
+        "title": "Partita IVA non trovata",
+        "description": "Nel sito non compare la Partita IVA: le aziende italiane devono indicarla nel sito, di solito nel footer.",
+        "fix": "Aggiungi ragione sociale e Partita IVA nel footer di tutte le pagine."
+      },
+      "cookiesBeforeConsent": {
+        "title": "Cookie di tracciamento prima del consenso",
+        "description": "Appena si apre il sito, prima che il visitatore accetti, vengono già salvati cookie di statistica o pubblicità: le leggi sulla privacy (GDPR nell’UE, 152-ФЗ in Russia) richiedono prima il consenso.",
+        "fix": "Configura il banner cookie (o Google Consent Mode) in modo che questi strumenti partano solo dopo che il visitatore ha accettato. Per i video usa youtube-nocookie.com."
+      },
+      "ruConsentMissing": {
+        "title": "Modulo senza consenso al trattamento dei dati (Russia)",
+        "description": "Alcuni moduli chiedono dati personali (email, telefono, nome) ma non contengono il consenso al trattamento dei dati personali richiesto dalla legge russa 152-ФЗ.",
+        "fix": "Aggiungi a ogni modulo una casella non spuntata «Даю согласие на обработку персональных данных» con il link al testo del consenso."
+      },
+      "ruConsentPrechecked": {
+        "title": "Consenso già spuntato (Russia)",
+        "description": "La casella del consenso al trattamento dei dati è già spuntata: il consenso deve essere una scelta attiva del visitatore.",
+        "fix": "Lascia la casella del consenso vuota per impostazione predefinita."
+      },
+      "ruConsentNoCheckbox": {
+        "title": "Consenso senza casella di spunta (Russia)",
+        "description": "Il consenso è solo una frase nel modulo (per esempio «Нажимая кнопку, вы соглашаетесь…»). Dal 1° settembre 2025 la legge 152-ФЗ richiede un consenso separato dagli altri documenti.",
+        "fix": "Sostituisci la frase con una casella da spuntare dedicata al consenso, collegata a un documento di consenso separato dalla privacy policy."
+      },
+      "ruForeignServices": {
+        "title": "Servizi esteri che raccolgono dati (Russia)",
+        "description": "Il sito usa servizi di analisi o pubblicità con server all’estero. Dal 1° luglio 2025 la legge 152-ФЗ vieta di raccogliere i dati dei cittadini russi direttamente su database esteri; l’applicazione a questi strumenti è ancora discussa.",
+        "fix": "Valuta con un legale se sostituirli con servizi russi (per esempio Yandex Metrica) o se notificare a Roskomnadzor il trasferimento dei dati all’estero."
+      },
+      "ruSellerDetailsMissing": {
+        "title": "Dati del venditore mancanti (Russia)",
+        "description": "Il sito vende online ma non mostra l’ИНН o l’ОГРН del venditore, richiesti dalla legge russa sulla tutela dei consumatori per la vendita a distanza.",
+        "fix": "Aggiungi nel footer o nella pagina contatti la ragione sociale, l’indirizzo, l’ИНН e l’ОГРН (o ОГРНИП) del venditore."
+      },
+      "ruForeignLanguage": {
+        "title": "Testi non in russo (Russia)",
+        "description": "Alcuni testi per i visitatori (menu, pulsanti, titoli) sono solo in lingua straniera. Dal 1° marzo 2026 la legge russa 168-ФЗ richiede che le informazioni per i consumatori siano in russo: il testo straniero è ammesso solo accanto alla traduzione russa. Marchi registrati e termini tecnici senza equivalente russo possono fare eccezione.",
+        "fix": "Traduci questi testi in russo, oppure affianca a ciascuno la traduzione russa con la stessa dimensione e lo stesso stile."
+      },
+      "ruConsentNotClickable": {
+        "title": "Casella del consenso non selezionabile (Russia)",
+        "description": "Il modulo ha la casella del consenso al trattamento dei dati personali, ma non si riesce a selezionarla (è disattivata, nascosta o coperta da un altro elemento): il visitatore non può dare il consenso.",
+        "fix": "Rendi la casella attiva e cliccabile, insieme al suo testo, e controlla che nessun elemento la copra."
+      }
+    },
+    "accessibility": {
+      "colorContrast": {
+        "title": "Testo con poco contrasto",
+        "description": "Alcuni testi hanno un contrasto troppo basso rispetto allo sfondo: sono difficili da leggere per chi vede poco, o sotto il sole.",
+        "fix": "Scurisci il testo o schiarisci lo sfondo: il contrasto minimo è 4,5:1 per il testo normale e 3:1 per quello grande."
+      },
+      "linkName": {
+        "title": "Link senza testo",
+        "description": "Alcuni link non hanno un testo leggibile (per esempio sono solo un’icona): lo screen reader dice soltanto «link».",
+        "fix": "Aggiungi un testo al link, oppure un attributo aria-label che dica dove porta."
+      },
+      "buttonName": {
+        "title": "Pulsanti senza nome",
+        "description": "Alcuni pulsanti non hanno un nome (spesso sono solo un’icona): lo screen reader dice soltanto «pulsante».",
+        "fix": "Aggiungi un testo, anche nascosto, o un aria-label che descriva l’azione (per esempio «Apri il menu»)."
+      },
+      "formLabel": {
+        "title": "Campi del modulo senza etichetta",
+        "description": "Alcuni campi non hanno un’etichetta associata: chi usa uno screen reader non sa cosa scrivere.",
+        "fix": "Collega a ogni campo un <label for=\"…\">, oppure aggiungi un aria-label."
+      },
+      "selectName": {
+        "title": "Menu a tendina senza etichetta",
+        "description": "Alcuni menu a tendina (<select>) non hanno un’etichetta.",
+        "fix": "Collega un <label> a ogni <select>, oppure aggiungi un aria-label."
+      },
+      "inputButtonName": {
+        "title": "Pulsanti dei moduli senza testo",
+        "description": "Alcuni pulsanti <input type=\"submit\"> o <input type=\"button\"> non hanno un testo.",
+        "fix": "Aggiungi l’attributo value con il testo del pulsante (per esempio value=\"Invia\")."
+      },
+      "inputImageAlt": {
+        "title": "Pulsanti immagine senza testo alternativo",
+        "description": "Alcuni pulsanti <input type=\"image\"> non hanno l’attributo alt.",
+        "fix": "Aggiungi un alt che descriva l’azione del pulsante."
+      },
+      "frameTitle": {
+        "title": "Contenuti incorporati senza titolo",
+        "description": "Alcuni iframe (mappe, video, moduli esterni) non hanno un titolo.",
+        "fix": "Aggiungi l’attributo title all’<iframe>, per esempio title=\"Mappa della sede\"."
+      },
+      "zoomDisabled": {
+        "title": "Zoom bloccato su mobile",
+        "description": "La pagina impedisce di ingrandire sul telefono (user-scalable=no o maximum-scale troppo basso).",
+        "fix": "Rimuovi user-scalable=no e maximum-scale dal meta viewport."
+      },
+      "headingOrder": {
+        "title": "Titoli fuori ordine",
+        "description": "I livelli dei titoli saltano (per esempio da <h1> a <h4>): chi naviga per titoli perde la struttura della pagina.",
+        "fix": "Usa i titoli in ordine (h1, h2, h3…) e cambia l’aspetto con il CSS, non con il livello del titolo."
+      },
+      "emptyHeading": {
+        "title": "Titoli vuoti",
+        "description": "Alcuni elementi titolo (<h1>–<h6>) non contengono testo.",
+        "fix": "Aggiungi un testo al titolo o rimuovi l’elemento vuoto."
+      },
+      "listStructure": {
+        "title": "Elenchi costruiti male",
+        "description": "Alcuni elenchi <ul> o <ol> contengono elementi diversi da <li>.",
+        "fix": "Dentro <ul> e <ol> usa solo elementi <li>."
+      },
+      "listItem": {
+        "title": "Voci di elenco fuori da un elenco",
+        "description": "Alcuni elementi <li> non si trovano dentro un <ul> o un <ol>.",
+        "fix": "Racchiudi le voci <li> in un elenco <ul> o <ol>."
+      },
+      "ariaAllowedAttr": {
+        "title": "Attributi ARIA non ammessi",
+        "description": "Alcuni elementi usano attributi ARIA che non sono validi per il loro ruolo.",
+        "fix": "Rimuovi gli attributi ARIA non ammessi o correggi il ruolo dell’elemento."
+      },
+      "ariaRequiredAttr": {
+        "title": "Attributi ARIA obbligatori mancanti",
+        "description": "Alcuni elementi con un ruolo ARIA non hanno gli attributi che quel ruolo richiede.",
+        "fix": "Aggiungi gli attributi richiesti (per esempio aria-checked per role=\"checkbox\")."
+      },
+      "ariaValidValue": {
+        "title": "Valori ARIA non validi",
+        "description": "Alcuni attributi ARIA hanno un valore non valido.",
+        "fix": "Correggi i valori degli attributi ARIA indicati."
+      },
+      "ariaHiddenFocus": {
+        "title": "Elementi nascosti ma raggiungibili da tastiera",
+        "description": "Alcune parti nascoste agli screen reader (aria-hidden) contengono link o pulsanti raggiungibili con il tasto Tab.",
+        "fix": "Rendi non focalizzabili gli elementi interni (tabindex=\"-1\") oppure togli aria-hidden."
+      },
+      "nestedInteractive": {
+        "title": "Controlli uno dentro l’altro",
+        "description": "Alcuni elementi interattivi ne contengono altri (per esempio un link dentro un pulsante): gli screen reader non li annunciano bene.",
+        "fix": "Separa i controlli: un link o un pulsante non deve contenere altri link o pulsanti."
+      },
+      "svgImgAlt": {
+        "title": "Icone SVG senza testo alternativo",
+        "description": "Alcune immagini SVG con role=\"img\" non hanno un testo alternativo.",
+        "fix": "Aggiungi un <title> dentro l’SVG oppure un aria-label."
+      },
+      "roleImgAlt": {
+        "title": "Immagini (role=\"img\") senza testo alternativo",
+        "description": "Alcuni elementi con role=\"img\" non hanno un testo alternativo.",
+        "fix": "Aggiungi un aria-label che descriva l’immagine."
+      },
+      "positiveTabindex": {
+        "title": "Ordine di tabulazione forzato",
+        "description": "Alcuni elementi hanno tabindex maggiore di 0 e alterano l’ordine naturale della navigazione da tastiera.",
+        "fix": "Usa solo tabindex=\"0\" o \"-1\" e metti gli elementi nell’ordine giusto nel codice HTML."
+      },
+      "autocompleteValid": {
+        "title": "Autocompletamento non valido",
+        "description": "Alcuni campi hanno un valore di autocomplete non valido.",
+        "fix": "Usa i valori standard, come «name», «email», «tel» o «street-address»."
+      },
+      "scrollableRegion": {
+        "title": "Aree scorrevoli non usabili da tastiera",
+        "description": "Alcune aree con scorrimento interno non si possono scorrere con la tastiera.",
+        "fix": "Aggiungi tabindex=\"0\" all’area scorrevole, oppure un elemento focalizzabile al suo interno."
+      },
+      "linkInTextBlock": {
+        "title": "Link riconoscibili solo dal colore",
+        "description": "Alcuni link nel testo si distinguono solo per il colore: chi non vede bene i colori non li riconosce.",
+        "fix": "Sottolinea i link nel testo o usa un altro segno oltre al colore."
+      },
+      "videoCaption": {
+        "title": "Video senza sottotitoli",
+        "description": "Alcuni video non hanno sottotitoli.",
+        "fix": "Aggiungi una traccia di sottotitoli (<track kind=\"captions\">)."
+      },
+      "genericLinkText": {
+        "title": "Link con testo generico",
+        "description": "Alcuni link dicono solo «clicca qui» o «leggi di più»: fuori dal contesto non si capisce dove portano.",
+        "fix": "Usa testi che descrivono la destinazione, per esempio «Scopri i nostri servizi»."
+      },
+      "other": {
+        "title": "{{help}}",
+        "description": "La regola di accessibilità «{{rule}}» non è rispettata.",
+        "fix": "Consulta la guida (in inglese): {{helpUrl}}"
+      }
+    },
+    "performance": {
+      "slowServer": {
+        "title": "Server lento a rispondere",
+        "description": "Il server impiega {{seconds, number}} s prima di iniziare a rispondere (consigliato: meno di 0,8 s).",
+        "fix": "Attiva una cache delle pagine (per WordPress basta un plugin di cache), passa a un hosting più veloce o usa una CDN."
+      },
+      "slowLcp": {
+        "title": "Contenuto principale lento ad apparire",
+        "description": "L’elemento principale della pagina (l’immagine grande o il titolo) compare dopo {{seconds, number}} s (consigliato: meno di 2,5 s).",
+        "fix": "Riduci e comprimi l’immagine principale, caricala con priorità (fetchpriority=\"high\", senza lazy-loading) ed evita script che bloccano la visualizzazione."
+      },
+      "layoutShift": {
+        "title": "La pagina «salta» durante il caricamento",
+        "description": "Elementi che compaiono in ritardo spostano il contenuto (CLS {{value, number}}; consigliato: meno di 0,1): si rischia di cliccare la cosa sbagliata.",
+        "fix": "Indica larghezza e altezza di immagini, video e banner, e riserva lo spazio per i contenuti che arrivano dopo."
+      },
+      "heavyPage": {
+        "title": "Pagina troppo pesante",
+        "description": "La pagina scarica {{size}} in {{requests, number}} file (consigliato: meno di 3 MB).",
+        "fix": "Comprimi le immagini, togli script e plugin inutili e attiva il lazy load per immagini e video che non si vedono nella prima schermata."
+      },
+      "tooManyRequests": {
+        "title": "Troppi file da scaricare",
+        "description": "La pagina scarica {{requests, number}} file tra script, stili, immagini e font (consigliato: non più di {{max, number}}).",
+        "fix": "Unisci i file, togli plugin e font non usati e limita gli script esterni."
+      },
+      "uncompressed": {
+        "title": "File inviati senza compressione",
+        "description": "Alcuni file di testo (HTML, CSS, JavaScript) vengono inviati senza compressione gzip o Brotli: pesano molto più del necessario.",
+        "fix": "Attiva la compressione gzip o Brotli sul server o nella CDN."
+      },
+      "noCache": {
+        "title": "File senza cache del browser",
+        "description": "Alcuni file del sito non dicono al browser per quanto può riutilizzarli: a ogni visita vengono scaricati di nuovo.",
+        "fix": "Imposta l’intestazione Cache-Control, per esempio max-age=31536000 per i file con la versione nel nome."
+      },
+      "legacyImageFormats": {
+        "title": "Immagini in formati vecchi",
+        "description": "Alcune immagini grandi sono in JPG o PNG: in WebP o AVIF peserebbero spesso dal 30% al 50% in meno.",
+        "fix": "Converti le immagini in WebP o AVIF (molti CMS lo fanno con un plugin)."
+      }
+    }
+  },
+  "features": {
+    "links": "Pagine 404, errori del server e domini che non esistono più.",
+    "images": "File mancanti o troppo pesanti, immagini senza testo alternativo.",
+    "seo": "Titoli, meta description, H1, lingua e noindex dimenticati.",
+    "mobile": "Meta viewport e pagine che scorrono di lato sul telefono.",
+    "technical": "Errori JavaScript, file che non si caricano, HTTPS e certificato SSL.",
+    "content": "Lorem ipsum, link a localhost o staging, testi demo ed email finte.",
+    "legal": "Privacy e cookie policy, banner cookie e Partita IVA.",
+    "accessibility": "Contrasto, pulsanti e campi senza nome, ordine dei titoli, zoom e link generici.",
+    "performance": "Risposta del server, tempo di caricamento, peso delle pagine, compressione e cache."
+  },
+  "recent": {
+    "title": "Scansioni recenti",
+    "clear": "Cancella elenco",
+    "critical_one": "{{count}} critico",
+    "critical_other": "{{count}} critici",
+    "expired": "Il report di {{url}} non è più sul server: avvio una nuova scansione.",
+    "remove": "Rimuovi dall’elenco"
+  },
+  "impact": {
+    "links": "I visitatori finiscono su pagine che non esistono o non si aprono.",
+    "images": "Le immagini non si vedono o rallentano il sito.",
+    "seo": "Il sito si trova peggio su Google e Yandex.",
+    "mobile": "Dal telefono il sito è scomodo da usare.",
+    "performance": "Il sito si apre lentamente e una parte dei visitatori se ne va.",
+    "technical": "Alcune funzioni del sito potrebbero non funzionare.",
+    "content": "Sono rimasti testi di prova: il sito sembra non finito.",
+    "legal": "Rischio di sanzioni per le leggi su privacy e dati personali.",
+    "accessibility": "Le persone con disabilità fanno fatica a usare il sito."
+  }
+}

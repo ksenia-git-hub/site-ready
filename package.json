@@ -1,0 +1,30 @@
+{
+  "name": "website-qa-assistant",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Automated QA checks for websites before handing them over to clients",
+  "type": "module",
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:server": "npm run dev -w server",
+    "dev:client": "npm run dev -w client",
+    "build": "npm run build -w client",
+    "start": "npm run start -w server",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "vitest run",
+    "demo-site": "node server/test/demo-site.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

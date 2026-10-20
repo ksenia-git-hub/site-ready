@@ -1,0 +1,18 @@
+{
+  // Shared compiler settings. TypeScript is used only for type checking (noEmit):
+  // the server runs .ts files directly via Node's built-in type stripping,
+  // and the client is compiled by Vite.
+  "compilerOptions": {
+    "target": "ES2023",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    // Node can only strip types, not transform code: forbid enums, namespaces, etc.
+    "erasableSyntaxOnly": true,
+    "allowImportingTsExtensions": true,
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}

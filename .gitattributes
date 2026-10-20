@@ -1,0 +1,5 @@
+# Same line endings (LF) everywhere, so files behave the same on Windows and on the Linux server.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.svg text
