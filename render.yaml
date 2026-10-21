@@ -1,0 +1,19 @@
+# Render Blueprint: Dashboard → New → Blueprint → pick this repository.
+# Everything else (HOST, BLOCK_PRIVATE_TARGETS, TRUST_PROXY) is set by the Dockerfile.
+services:
+  - type: web
+    name: site-ready
+    runtime: docker
+    # Chromium and full-page screenshots need about 2 GB of memory.
+    plan: 1c-2g
+    region: frankfurt
+    branch: main
+    # Deploy a new commit only after the GitHub Actions checks pass.
+    autoDeployTrigger: checksPass
+    healthCheckPath: /api/health
+    envVars:
+      # Asked once when the Blueprint is created; never stored in the repository.
+      - key: APP_PASSWORD
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
