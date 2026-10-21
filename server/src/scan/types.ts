@@ -7,6 +7,8 @@ export interface ScanOptions {
   signal?: AbortSignal;
   /** On a public deployment: refuses internal-network addresses (pages, files, links, images). */
   guard?: TargetGuard;
+  /** Small server (e.g. 512 MB): lighter screenshots and longer timeouts for a slow CPU. */
+  lowMemory?: boolean;
 }
 
 export type ProgressFn = (progress: ScanProgress) => void;

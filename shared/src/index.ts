@@ -281,10 +281,14 @@ export type ApiErrorCode =
   | 'tooManyAttempts'
   | 'tooManyScans';
 
-/** What GET /api/session returns: whether a password is needed and whether this browser is logged in. */
+/**
+ * What GET /api/session returns: whether a password is needed, whether this browser is logged in,
+ * and the most pages one scan may visit on this server (lower on a small server).
+ */
 export interface SessionResponse {
   authRequired: boolean;
   authenticated: boolean;
+  maxPages: number;
 }
 
 /** Body of POST /api/login. */

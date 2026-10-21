@@ -32,7 +32,12 @@ export interface BuildAppOptions {
   guard?: TargetGuard | null;
   /** Behind a proxy: the visitor's IP comes from X-Forwarded-For. */
   trustProxy?: boolean;
+  /** Small server: fewer pages per scan, lighter screenshots, fewer reports with screenshots kept. */
+  lowMemory?: { maxPages: number } | null;
 }
+
+/** On a small server only the latest reports keep their screenshots. */
+const LOW_MEMORY_JOBS_WITH_SCREENSHOTS = 3;
 
 /** One visitor can have this many scans queued or running at once… */
 const MAX_SCANS_PER_CLIENT = 2;
@@ -45,7 +50,11 @@ const PUBLIC_ROUTES = new Set(['/api/health', '/api/session', '/api/login', '/ap
 // so tests can create an instance and call routes via app.inject() without opening a port.
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   const app = Fastify({ logger: options.logger ?? false, trustProxy: options.trustProxy ?? false });
-  const queue = new ScanQueue(options.scanner ?? runScan);
+  const lowMemory = options.lowMemory ?? null;
+  const maxPages = lowMemory ? Math.min(lowMemory.maxPages, MAX_PAGES_LIMIT) : MAX_PAGES_LIMIT;
+  const queue = lowMemory
+    ? new ScanQueue(options.scanner ?? runScan, undefined, LOW_MEMORY_JOBS_WITH_SCREENSHOTS)
+    : new ScanQueue(options.scanner ?? runScan);
   const auth = options.auth ? createAuth(options.auth) : null;
   const loginLimiter = new LoginLimiter();
   const guard = options.guard ?? undefined;
@@ -64,6 +73,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   app.get('/api/session', async (request): Promise<SessionResponse> => ({
     authRequired: auth !== null,
     authenticated: auth === null || auth.isAuthenticated(request.headers.cookie),
+    maxPages,
   }));
 
   app.post<{ Body: LoginRequest }>(
@@ -123,7 +133,9 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       if (queue.activeCount(request.ip) >= MAX_SCANS_PER_CLIENT || queue.activeCount() >= MAX_QUEUED_SCANS) {
         return reply.code(429).send(apiError('tooManyScans', 'Too many scans at once, wait for one to finish'));
       }
-      const job = queue.enqueue(url, { maxPages: request.body.maxPages ?? DEFAULT_MAX_PAGES, guard }, request.ip);
+      // Older clients or a recent-scan rerun may ask for more than this server allows: scan fewer.
+      const pages = Math.min(request.body.maxPages ?? DEFAULT_MAX_PAGES, maxPages);
+      const job = queue.enqueue(url, { maxPages: pages, guard, lowMemory: lowMemory !== null }, request.ip);
       const body: CreateScanResponse = { id: job.id };
       return reply.code(202).send(body);
     },

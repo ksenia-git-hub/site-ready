@@ -4,14 +4,17 @@ services:
   - type: web
     name: site-ready
     runtime: docker
-    # Chromium and full-page screenshots need about 2 GB of memory.
-    plan: 1c-2g
+    # Free instance: 512 MB, a fraction of a CPU, sleeps after 15 minutes without visitors.
+    # With 2 GB (plan 1c-2g) remove LOW_MEMORY for full-size scans.
+    plan: free
     region: frankfurt
     branch: main
     # Deploy a new commit only after the GitHub Actions checks pass.
     autoDeployTrigger: checksPass
     healthCheckPath: /api/health
     envVars:
+      - key: LOW_MEMORY
+        value: "true"
       # Asked once when the Blueprint is created; never stored in the repository.
       - key: APP_PASSWORD
         sync: false

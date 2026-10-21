@@ -111,9 +111,18 @@ docker run -p 3000:3000 -e APP_PASSWORD=change-me site-ready
 
 The image already sets `HOST=0.0.0.0`, `BLOCK_PRIVATE_TARGETS=true` and `TRUST_PROXY=true`. Give the container about 2 GB of memory for Chromium and full-page screenshots.
 
+**Render:** [render.yaml](render.yaml) is a Blueprint for Render's free instance. Render deploys each commit only after the CI checks pass. A free instance has 512 MB and a fraction of a CPU, so it runs with `LOW_MEMORY=true`:
+
+- at most 3 pages per scan;
+- lighter screenshots;
+- longer page timeouts;
+- fewer reports kept in memory.
+
+It also falls asleep after 15 minutes without visitors, so the first request takes about a minute.
+
 ## Testing and CI
 
-- **96 automated tests** (Vitest):
+- **98 automated tests** (Vitest):
   - unit tests for every rule file;
   - API tests with a fake scanner;
   - security tests for the login, the rate limiter and the private-address guard;

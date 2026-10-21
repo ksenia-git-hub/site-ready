@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { buildApp } from './app.ts';
-import { loadConfig } from './config.ts';
+import { LOW_MEMORY_MAX_PAGES, loadConfig } from './config.ts';
 import { createTargetGuard } from './scan/network-guard.ts';
 
 const config = loadConfig();
@@ -13,6 +13,7 @@ const app = buildApp({
   auth: config.appPassword ? { password: config.appPassword, secret: config.sessionSecret } : null,
   guard: config.blockPrivateTargets ? createTargetGuard() : null,
   trustProxy: config.trustProxy,
+  lowMemory: config.lowMemory ? { maxPages: LOW_MEMORY_MAX_PAGES } : null,
 });
 if (!config.appPassword && config.host !== '127.0.0.1' && config.host !== 'localhost') {
   app.log.warn('APP_PASSWORD is not set: anyone who can reach this server can use it.');

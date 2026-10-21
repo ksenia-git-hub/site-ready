@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
 import { CircleAlert, Loader2, ServerOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { DEFAULT_MAX_PAGES, type ScanJobView } from '@qa/shared';
+import { DEFAULT_MAX_PAGES, MAX_PAGES_LIMIT, type ScanJobView } from '@qa/shared';
 import { UNAUTHORIZED_EVENT, api } from './api.ts';
 import { Header } from './components/Header.tsx';
 import { Home } from './components/Home.tsx';
@@ -31,6 +31,8 @@ export function App() {
   // The error itself, not its text: the text is built at render time so it follows language changes.
   const [requestError, setRequestError] = useState<unknown>(null);
   const [recent, setRecent] = useState<RecentScan[]>(loadRecentScans);
+  // A small server allows fewer pages per scan; it says how many in /api/session.
+  const [maxPagesLimit, setMaxPagesLimit] = useState(MAX_PAGES_LIMIT);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -38,6 +40,7 @@ export function App() {
       .session(controller.signal)
       .then((session) => {
         setApiState('online');
+        setMaxPagesLimit(session.maxPages);
         setAuthState(!session.authRequired ? 'open' : session.authenticated ? 'loggedIn' : 'required');
       })
       .catch(() => {
@@ -187,6 +190,7 @@ export function App() {
           <Home
             initialUrl={lastInput}
             onSubmit={startScan}
+            maxPagesLimit={maxPagesLimit}
             disabled={apiState === 'offline'}
             recent={recent}
             onOpenRecent={openRecent}

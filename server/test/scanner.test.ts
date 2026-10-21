@@ -81,6 +81,16 @@ describe('runScan on the demo site', () => {
     }
   });
 
+  it('finds the same problems in low-memory mode, with lighter screenshots', { timeout: 120_000 }, async () => {
+    const normal = await runScan(site.url, { maxPages: 1 }, () => {});
+    const light = await runScan(site.url, { maxPages: 1, lowMemory: true }, () => {});
+
+    const codes = (issues: { code: string }[]) => issues.map((issue) => issue.code).sort();
+    expect(codes(light.report.issues)).toEqual(codes(normal.report.issues));
+    expect(light.screenshots[0]?.desktop?.subarray(0, 2)).toEqual(Buffer.from([0xff, 0xd8]));
+    expect(light.screenshots[0]!.mobile!.length).toBeLessThan(normal.screenshots[0]!.mobile!.length);
+  });
+
   it('stops quickly when cancelled in the middle of the crawl', { timeout: 60_000 }, async () => {
     const controller = new AbortController();
     const started = Date.now();

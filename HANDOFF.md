@@ -7,8 +7,8 @@ _Updated on 21 October 2026._
 **Status:**
 
 - The first complete version works locally: frontend, backend, tests and the Docker setup are done.
-- The repository is ready to be published on GitHub, with a README and CI.
-- Not deployed yet.
+- Published on GitHub (https://github.com/ksenia-git-hub/site-ready) with a README and CI that passes.
+- Being deployed on Render Free (see Deployment).
 
 ### What was built and why
 
@@ -34,7 +34,7 @@ _Updated on 21 October 2026._
 | **Modern interface** (Tailwind + shadcn/ui) | Professional look, light/dark theme, works on a phone too. |
 | **Stop scan, recent scans** | Stop a scan started by mistake; reopen recent reports from the home page. |
 | **Demo sites with deliberate mistakes** | Try and test the app without a real site (`npm run demo-site`). |
-| **96 automated tests + CI** | Make sure future changes don't break what already works. |
+| **98 automated tests + CI** | Make sure future changes don't break what already works. |
 
 **How the score is computed:**
 
@@ -100,7 +100,7 @@ The Italian VAT number is not required on Russian sites.
 
 ### Verification
 
-- `npm test`: 96 tests pass.
+- `npm test`: 98 tests pass.
   - The end-to-end tests scan the demo sites with Chromium and find exactly the planted problems (35 on the Italian site), with screenshots of every page. A second end-to-end test covers the Russian shop.
   - The translation tests check that the three languages have the same keys, plural forms and placeholders.
 - `npm run typecheck` and `npm run build` pass.
@@ -123,7 +123,7 @@ npm run demo-site   # terminal 1: site with deliberate mistakes on :4000 and Rus
 npm run dev         # terminal 2: open http://localhost:5173 and scan localhost:4000
 ```
 
-## Deployment (ready, only the hosting is missing)
+## Deployment
 
 - **Password** (`APP_PASSWORD`):
   - when set, the app asks for a password (one shared by all colleagues);
@@ -143,6 +143,15 @@ npm run dev         # terminal 2: open http://localhost:5173 and scan localhost:
 
   Docker is not installed on the development PC: the CI builds the image and checks `/api/health`.
 - Recommended memory: **2 GB** (Chromium and full-page screenshots).
+- **Render Free** (chosen to keep it free): [render.yaml](render.yaml) creates the service with `LOW_MEMORY=true`.
+  - Limits on the 512 MB instance:
+    - at most 3 pages per scan;
+    - full-page screenshots capped at 5 000 px, phone rendered at 1×, JPEG quality 45;
+    - 60 s page timeout;
+    - screenshots kept for the last 3 reports only.
+  - The page-count menu shows only what the server allows (`maxPages` in `/api/session`).
+  - The instance sleeps after 15 minutes without visitors; waking up takes about a minute.
+  - New commits are deployed only after CI passes (`autoDeployTrigger: checksPass`).
 
 ## Known limitations
 
@@ -158,10 +167,8 @@ npm run dev         # terminal 2: open http://localhost:5173 and scan localhost:
 
 ## Next steps
 
-1. **GitHub:** publish the repository as public (it goes into a job application), with the commit e-mail replaced by the GitHub noreply address before the first push.
-2. **Hosting** (to be decided). The same Dockerfile works for both options:
-   - Render, paid with a foreign card, on a plan with 2 GB;
-   - a Russian cloud server (Timeweb Cloud, Selectel, Yandex Cloud) with Docker.
+1. **GitHub:** done: https://github.com/ksenia-git-hub/site-ready (public, commits signed with the GitHub noreply address).
+2. **Hosting:** create the Render Blueprint from the repository and check a real scan on the free instance. If 512 MB turns out too small, the same Dockerfile runs on a paid 2 GB plan or a cloud server without `LOW_MEMORY`.
 3. Proposed features not done yet:
    - PDF with the studio's logo and details;
    - saved reports (database) and history with a before/after comparison;

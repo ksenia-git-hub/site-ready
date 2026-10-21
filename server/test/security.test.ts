@@ -17,7 +17,7 @@ describe('password protection', () => {
 
   it('keeps the API closed until the right password is given', async () => {
     const server = app();
-    expect((await server.inject({ method: 'GET', url: '/api/session' })).json()).toEqual({ authRequired: true, authenticated: false });
+    expect((await server.inject({ method: 'GET', url: '/api/session' })).json()).toEqual({ authRequired: true, authenticated: false, maxPages: 50 });
     expect((await server.inject({ method: 'POST', url: '/api/scans', payload: { url: 'example.com' } })).statusCode).toBe(401);
     // Health stays public for the hosting's checks.
     expect((await server.inject({ method: 'GET', url: '/api/health' })).statusCode).toBe(200);
@@ -31,7 +31,7 @@ describe('password protection', () => {
     expect(String(login.headers['set-cookie'])).toMatch(/HttpOnly/);
     const cookie = cookieOf(login);
 
-    expect((await server.inject({ method: 'GET', url: '/api/session', headers: { cookie } })).json()).toEqual({ authRequired: true, authenticated: true });
+    expect((await server.inject({ method: 'GET', url: '/api/session', headers: { cookie } })).json()).toEqual({ authRequired: true, authenticated: true, maxPages: 50 });
     const scan = await server.inject({ method: 'POST', url: '/api/scans', payload: { url: 'example.com' }, headers: { cookie } });
     expect(scan.statusCode).toBe(202);
     await server.close();
@@ -59,7 +59,7 @@ describe('password protection', () => {
 
   it('stays open when no password is configured (local use)', async () => {
     const server = buildApp({ scanner: async (url) => emptyResult(url) });
-    expect((await server.inject({ method: 'GET', url: '/api/session' })).json()).toEqual({ authRequired: false, authenticated: true });
+    expect((await server.inject({ method: 'GET', url: '/api/session' })).json()).toEqual({ authRequired: false, authenticated: true, maxPages: 50 });
     expect((await server.inject({ method: 'POST', url: '/api/scans', payload: { url: 'example.com' } })).statusCode).toBe(202);
     await server.close();
   });

@@ -63,6 +63,21 @@ describe('scans API', () => {
     await app.close();
   });
 
+  it('on a small server, tells the client the page limit and scans at most that many pages', async () => {
+    const calls: { maxPages: number; lowMemory?: boolean }[] = [];
+    const scanner: Scanner = async (url, options) => {
+      calls.push({ maxPages: options.maxPages, lowMemory: options.lowMemory });
+      return emptyResult(url);
+    };
+    const app = buildApp({ scanner, lowMemory: { maxPages: 3 } });
+
+    expect((await app.inject({ method: 'GET', url: '/api/session' })).json()).toMatchObject({ maxPages: 3 });
+    const created = await app.inject({ method: 'POST', url: '/api/scans', payload: { url: 'example.com', maxPages: 25 } });
+    await waitForJob(app, created.json().id);
+    expect(calls).toEqual([{ maxPages: 3, lowMemory: true }]);
+    await app.close();
+  });
+
   it('serves the screenshots of a finished scan', async () => {
     const app = buildApp({ scanner: async (url) => emptyResult(url) });
     const { id } = (await app.inject({ method: 'POST', url: '/api/scans', payload: { url: 'example.com' } })).json();
@@ -149,8 +164,9 @@ describe('loadConfig', () => {
       sessionSecret: null,
       blockPrivateTargets: false,
       trustProxy: false,
+      lowMemory: false,
     });
-    expect(loadConfig({ BLOCK_PRIVATE_TARGETS: 'true', APP_PASSWORD: 'x' })).toMatchObject({ blockPrivateTargets: true, appPassword: 'x' });
+    expect(loadConfig({ BLOCK_PRIVATE_TARGETS: 'true', APP_PASSWORD: 'x', LOW_MEMORY: 'true' })).toMatchObject({ blockPrivateTargets: true, appPassword: 'x', lowMemory: true });
   });
 
   it('rejects an invalid port', () => {

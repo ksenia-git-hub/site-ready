@@ -26,9 +26,18 @@ import {
   type UrlCheckResult,
 } from './types.ts';
 
-const NAVIGATION_TIMEOUT_MS = 30_000;
-/** Screenshots cover the whole page, up to this height (CSS pixels) for very long pages. */
-const MAX_FULL_PAGE_HEIGHT = 15_000;
+/** How pages are loaded and captured; lighter on a small server. */
+interface CaptureSettings {
+  navigationTimeoutMs: number;
+  /** Screenshots cover the whole page, up to this height (CSS pixels) for very long pages. */
+  maxPageHeight: number;
+  jpegQuality: number;
+  /** Phone rendering density: 2 is sharper, 1 needs a quarter of the memory. */
+  phoneScale: number;
+}
+const NORMAL_CAPTURE: CaptureSettings = { navigationTimeoutMs: 30_000, maxPageHeight: 15_000, jpegQuality: 60, phoneScale: 2 };
+/** A tiny CPU loads pages slowly, and long full-page screenshots can run out of memory. */
+const LOW_MEMORY_CAPTURE: CaptureSettings = { navigationTimeoutMs: 60_000, maxPageHeight: 5_000, jpegQuality: 45, phoneScale: 1 };
 /** Requests remembered per page (for dev links, trackers and mixed content). */
 const MAX_REQUESTS_PER_PAGE = 500;
 const MAX_LINKS = 500;
@@ -40,7 +49,6 @@ const NON_PAGE_EXTENSION = /\.(pdf|zip|rar|7z|gz|jpe?g|png|gif|webp|avif|svg|ico
 /** Narrow phone (iPhone SE/mini class): the strictest common width. */
 const MOBILE_CONTEXT = {
   viewport: { width: 375, height: 812 },
-  deviceScaleFactor: 2,
   isMobile: true,
   hasTouch: true,
   userAgent: devices['Pixel 7']!.userAgent,
@@ -74,8 +82,12 @@ const scanSite: Scanner = async (startUrl, options, onProgress) => {
   };
   throwIfCancelled();
   onProgress({ step: 'starting' });
+  const capture = options.lowMemory ? LOW_MEMORY_CAPTURE : NORMAL_CAPTURE;
   // Docker gives containers a tiny /dev/shm: Chromium would crash on big pages without this flag.
-  const browser = await chromium.launch({ args: ['--disable-dev-shm-usage'] });
+  const args = ['--disable-dev-shm-usage'];
+  // One renderer process for all tabs, no GPU process: less memory on a small server.
+  if (options.lowMemory) args.push('--renderer-process-limit=1', '--disable-gpu');
+  const browser = await chromium.launch({ args });
   // Stopping closes the browser at once: a page that is loading fails and the crawl ends.
   const closeOnCancel = () => void browser.close();
   signal?.addEventListener('abort', closeOnCancel, { once: true });
@@ -83,7 +95,7 @@ const scanSite: Scanner = async (startUrl, options, onProgress) => {
   try {
     const desktop = await browser.newContext({ viewport: { width: 1366, height: 900 } });
     await desktop.addInitScript(observeSpeed);
-    const mobile = await browser.newContext(MOBILE_CONTEXT);
+    const mobile = await browser.newContext({ ...MOBILE_CONTEXT, deviceScaleFactor: capture.phoneScale });
     if (options.guard) {
       // Pages, redirects, scripts, images…: nothing may come from an internal network.
       const guard = options.guard;
@@ -98,7 +110,7 @@ const scanSite: Scanner = async (startUrl, options, onProgress) => {
         ? { status: null, contentLength: null, contentType: null, failure: { reason: 'blocked' }, elapsedMs: 0 }
         : checkUrl(url, undefined, signal);
 
-    const crawl = await crawlSite(startUrl, options, desktop, mobile, onProgress);
+    const crawl = await crawlSite(startUrl, options, { desktop, mobile, capture }, onProgress);
     throwIfCancelled();
     // Nobody clicked "Accept" on a cookie banner: every cookie here was set before consent.
     const cookies = [...(await desktop.cookies()), ...(await mobile.cookies())];
@@ -181,8 +193,7 @@ interface CrawlResult {
 async function crawlSite(
   startUrl: string,
   options: ScanOptions,
-  desktop: BrowserContext,
-  mobile: BrowserContext,
+  browser: BrowserSetup,
   onProgress: ProgressFn,
 ): Promise<CrawlResult> {
   const queue = [normalizeUrl(startUrl)!];
@@ -203,7 +214,7 @@ async function crawlSite(
     const total = Math.min(options.maxPages, result.pages.length + queue.length + 1);
     onProgress({ step: 'pages', done: result.pages.length + 1, total, url });
 
-    const visit = await visitPage(url, desktop, mobile);
+    const visit = await visitPage(url, browser);
     if ('failure' in visit) {
       // The start page must work; other failing pages show up in the link check.
       if (result.pages.length === 0) throw new ScanError(url, visit.failure);
@@ -248,7 +259,13 @@ async function crawlSite(
 
 type Visit = { page: PageData; mobileData: MobileData | null; screenshots: PageScreenshots } | { failure: Failure };
 
-async function visitPage(url: string, desktop: BrowserContext, mobile: BrowserContext): Promise<Visit> {
+interface BrowserSetup {
+  desktop: BrowserContext;
+  mobile: BrowserContext;
+  capture: CaptureSettings;
+}
+
+async function visitPage(url: string, { desktop, mobile, capture }: BrowserSetup): Promise<Visit> {
   let dom: DomData;
   let desktopShot: Buffer | null = null;
   let accessibility: AxeViolation[] = [];
@@ -257,16 +274,16 @@ async function visitPage(url: string, desktop: BrowserContext, mobile: BrowserCo
   const network = watchNetwork(tab);
   const resources = await watchResources(desktop, tab);
   try {
-    const response = await tab.goto(url, { waitUntil: 'load', timeout: NAVIGATION_TIMEOUT_MS });
+    const response = await tab.goto(url, { waitUntil: 'load', timeout: capture.navigationTimeoutMs });
     if (!response) return { failure: { reason: 'noResponse' } };
     if (response.status() >= 400) return { failure: { reason: 'http', status: response.status() } };
     if (!(response.headers()['content-type'] ?? '').includes('html')) return { failure: { reason: 'notHtml' } };
     speed = await readSpeed(tab).catch(() => null);
     // Scroll down step by step so lazy images load (they count in the data and appear in the screenshot).
-    await scrollThrough(tab, MAX_FULL_PAGE_HEIGHT);
+    await scrollThrough(tab, capture.maxPageHeight);
     dom = await extractPage(tab);
     await scrollToTop(tab);
-    desktopShot = await screenshot(tab, { fullPage: true });
+    desktopShot = await screenshot(tab, capture);
     // After the screenshot: injecting axe must not change what the visitor sees in it.
     accessibility = await runAxe(tab);
     await testConsentCheckboxes(tab, dom);
@@ -293,12 +310,12 @@ async function visitPage(url: string, desktop: BrowserContext, mobile: BrowserCo
   let mobileShot: Buffer | null = null;
   const phone = await mobile.newPage();
   try {
-    await phone.goto(page.url, { waitUntil: 'load', timeout: NAVIGATION_TIMEOUT_MS });
+    await phone.goto(page.url, { waitUntil: 'load', timeout: capture.navigationTimeoutMs });
     mobileData = await extractMobile(phone);
     // The whole page, top to bottom, so it can be scrolled through like on a real phone.
-    await scrollThrough(phone, MAX_FULL_PAGE_HEIGHT);
+    await scrollThrough(phone, capture.maxPageHeight);
     await scrollToTop(phone);
-    mobileShot = await screenshot(phone, { fullPage: true });
+    mobileShot = await screenshot(phone, capture);
   } catch {
     mobileData = null;
   } finally {
@@ -357,20 +374,17 @@ function watchNetwork(tab: Page): Omit<NetworkData, 'resources' | 'metrics'> {
   return network;
 }
 
-/**
- * A light JPEG in CSS pixels (phone shots stay 375px wide): what a visitor sees first or, with
- * fullPage, the whole page up to MAX_FULL_PAGE_HEIGHT.
- */
-async function screenshot(tab: Page, { fullPage = false } = {}): Promise<Buffer | null> {
+/** A light full-page JPEG in CSS pixels (phone shots stay 375px wide), up to maxPageHeight. */
+async function screenshot(tab: Page, { maxPageHeight, jpegQuality }: CaptureSettings): Promise<Buffer | null> {
   try {
-    const height = fullPage ? await tab.evaluate(() => document.documentElement.scrollHeight) : 0;
+    const height = await tab.evaluate(() => document.documentElement.scrollHeight);
     const width = tab.viewportSize()?.width ?? 375;
     return await tab.screenshot({
       type: 'jpeg',
-      quality: 60,
+      quality: jpegQuality,
       scale: 'css',
-      fullPage,
-      clip: fullPage && height > MAX_FULL_PAGE_HEIGHT ? { x: 0, y: 0, width, height: MAX_FULL_PAGE_HEIGHT } : undefined,
+      fullPage: true,
+      clip: height > maxPageHeight ? { x: 0, y: 0, width, height: maxPageHeight } : undefined,
       timeout: 20_000,
     });
   } catch {
@@ -442,7 +456,8 @@ function limit<T>(items: T[], max: number, code: ScanWarning['code'], warnings: 
 /** Maps Playwright navigation errors ("net::ERR_NAME_NOT_RESOLVED", "Timeout 30000ms exceeded") to reasons. */
 function navigationFailure(error: unknown): Failure {
   const message = error instanceof Error ? error.message.split('\n')[0]! : String(error);
-  if (/Timeout \d+ms exceeded/i.test(message)) return { reason: 'timeout', seconds: NAVIGATION_TIMEOUT_MS / 1000 };
+  const timeout = /Timeout (\d+)ms exceeded/i.exec(message);
+  if (timeout) return { reason: 'timeout', seconds: Number(timeout[1]) / 1000 };
   if (/ERR_NAME_NOT_RESOLVED|ERR_NAME_RESOLUTION_FAILED/.test(message)) return { reason: 'dns' };
   if (/ERR_CONNECTION_REFUSED/.test(message)) return { reason: 'refused' };
   if (/ERR_CONNECTION_RESET|ERR_CONNECTION_CLOSED/.test(message)) return { reason: 'reset' };

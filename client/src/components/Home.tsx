@@ -18,6 +18,8 @@ interface Props {
   /** Address to show in the field, e.g. after the user stopped a scan to fix a typo. */
   initialUrl?: string;
   onSubmit: (url: string, maxPages: number) => void;
+  /** Most pages this server scans at once: larger choices are hidden. */
+  maxPagesLimit: number;
   disabled: boolean;
   recent: RecentScan[];
   onOpenRecent: (scan: RecentScan) => void;
@@ -27,10 +29,12 @@ interface Props {
   alert?: ReactNode;
 }
 
-export function Home({ initialUrl = '', onSubmit, disabled, recent, onOpenRecent, onClearRecent, onRemoveRecent, alert }: Props) {
+export function Home({ initialUrl = '', onSubmit, maxPagesLimit, disabled, recent, onOpenRecent, onClearRecent, onRemoveRecent, alert }: Props) {
   const { t, i18n } = useTranslation();
   const [url, setUrl] = useState(initialUrl);
-  const [maxPages, setMaxPages] = useState(String(DEFAULT_MAX_PAGES));
+  const [chosenPages, setMaxPages] = useState(DEFAULT_MAX_PAGES);
+  const pageOptions = [...new Set([...PAGE_OPTIONS.filter((option) => option < maxPagesLimit), maxPagesLimit])];
+  const maxPages = String(Math.min(chosenPages, maxPagesLimit));
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -71,12 +75,12 @@ export function Home({ initialUrl = '', onSubmit, disabled, recent, onOpenRecent
             />
           </label>
           <div className="flex gap-2">
-            <Select value={maxPages} onValueChange={setMaxPages}>
+            <Select value={maxPages} onValueChange={(value) => setMaxPages(Number(value))}>
               <SelectTrigger className="h-11! flex-1 sm:w-40" aria-label={t('form.pagesLabel')}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {PAGE_OPTIONS.map((option) => (
+                {pageOptions.map((option) => (
                   <SelectItem key={option} value={String(option)}>
                     {option === 1 ? t('form.onlyThisPage') : t('form.upTo', { count: option })}
                   </SelectItem>

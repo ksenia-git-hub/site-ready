@@ -15,7 +15,14 @@ export interface AppConfig {
   blockPrivateTargets: boolean;
   /** Behind a proxy (Render, a load balancer…): take the visitor's IP from X-Forwarded-For. */
   trustProxy: boolean;
+  /**
+   * Small server such as Render Free (512 MB, a fraction of a CPU): at most LOW_MEMORY_MAX_PAGES
+   * pages per scan, lighter screenshots, fewer reports kept in memory.
+   */
+  lowMemory: boolean;
 }
+
+export const LOW_MEMORY_MAX_PAGES = 3;
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   return {
@@ -25,6 +32,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     sessionSecret: env.SESSION_SECRET || null,
     blockPrivateTargets: readBool(env.BLOCK_PRIVATE_TARGETS, false),
     trustProxy: readBool(env.TRUST_PROXY, false),
+    lowMemory: readBool(env.LOW_MEMORY, false),
   };
 }
 
