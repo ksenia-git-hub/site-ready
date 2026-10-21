@@ -463,7 +463,7 @@
       },
       "cookiesBeforeConsent": {
         "title": "Tracking cookies before consent",
-        "description": "As soon as the site opens, before the visitor accepts anything, analytics or advertising cookies are already set: privacy laws (GDPR in the EU, 152-FZ in Russia) require consent first.",
+        "description": "As soon as the site opens, before the visitor accepts anything, analytics or advertising cookies are already set. Even if the site has a cookie banner, they appear before the visitor clicks “Accept”. In the EU (GDPR and the ePrivacy directive) such cookies are only allowed after consent.",
         "fix": "Set up the cookie banner (or Google Consent Mode) so these tools only start after the visitor has accepted. For videos use youtube-nocookie.com."
       },
       "ruConsentMissing": {
@@ -500,6 +500,11 @@
         "title": "Consent checkbox can’t be ticked (Russia)",
         "description": "The form has a checkbox for consent to the processing of personal data, but it can’t be ticked (it is disabled, hidden or covered by another element): visitors can’t give their consent.",
         "fix": "Make the checkbox enabled and clickable, together with its label, and check that nothing covers it."
+      },
+      "ruCookiesBeforeConsent": {
+        "title": "Analytics starts before consent (Russia)",
+        "description": "As soon as the site opens, before the visitor agrees to anything, analytics or advertising cookies are set. Even if the site has a cookie banner, the counters start before the visitor clicks it. Roskomnadzor considers that such cookies may be personal data (152-FZ), which needs consent.",
+        "fix": "Make sure the banner asks for consent (not just informs about cookies) and that the counters are listed in the personal data policy. The safest option is to start them only after the visitor clicks “Accept”."
       }
     },
     "accessibility": {

@@ -49,6 +49,14 @@ describe('checkCookiesBeforeConsent', () => {
     ]);
   });
 
+  it('on a Russian site, reports a warning with its own code (no explicit opt-in rule there)', () => {
+    const issues = checkCookiesBeforeConsent([{ name: '_ym_uid', domain: '.site.ru' }], 'https://site.ru/', true);
+
+    expect(issues).toMatchObject([
+      { code: 'legal.ruCookiesBeforeConsent', severity: 'warning', params: { count: 1, trackers: ['Yandex Metrica'] } },
+    ]);
+  });
+
   it('finds nothing when only technical cookies are set', () => {
     expect(checkCookiesBeforeConsent([{ name: 'PHPSESSID', domain: 'site.it' }], 'https://site.it/')).toEqual([]);
   });

@@ -463,7 +463,7 @@
       },
       "cookiesBeforeConsent": {
         "title": "Cookie di tracciamento prima del consenso",
-        "description": "Appena si apre il sito, prima che il visitatore accetti, vengono già salvati cookie di statistica o pubblicità: le leggi sulla privacy (GDPR nell’UE, 152-ФЗ in Russia) richiedono prima il consenso.",
+        "description": "Appena si apre il sito, prima che il visitatore accetti, vengono già salvati cookie di statistica o pubblicità. Anche se il sito ha un banner cookie, compaiono prima che il visitatore clicchi «Accetta». Nell’UE (GDPR e direttiva ePrivacy) questi cookie sono ammessi solo dopo il consenso.",
         "fix": "Configura il banner cookie (o Google Consent Mode) in modo che questi strumenti partano solo dopo che il visitatore ha accettato. Per i video usa youtube-nocookie.com."
       },
       "ruConsentMissing": {
@@ -500,6 +500,11 @@
         "title": "Casella del consenso non selezionabile (Russia)",
         "description": "Il modulo ha la casella del consenso al trattamento dei dati personali, ma non si riesce a selezionarla (è disattivata, nascosta o coperta da un altro elemento): il visitatore non può dare il consenso.",
         "fix": "Rendi la casella attiva e cliccabile, insieme al suo testo, e controlla che nessun elemento la copra."
+      },
+      "ruCookiesBeforeConsent": {
+        "title": "Statistiche avviate prima del consenso (Russia)",
+        "description": "Appena si apre il sito, prima che il visitatore dia il consenso, vengono salvati cookie di statistica o pubblicità. Anche se il sito ha un banner cookie, i contatori partono prima che il visitatore lo clicchi. Secondo il Roskomnadzor questi cookie possono essere dati personali (152-ФЗ), per cui serve il consenso.",
+        "fix": "Verifica che il banner chieda il consenso (e non si limiti a informare sui cookie) e che i contatori siano indicati nell’informativa sui dati personali. La soluzione più sicura è avviarli solo dopo il clic su «Accetta»."
       }
     },
     "accessibility": {

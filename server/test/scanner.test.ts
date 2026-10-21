@@ -130,7 +130,7 @@ describe('runScan on the Russian demo shop', () => {
           'warning: legal.ruSellerDetailsMissing',
           'warning: legal.ruForeignLanguage',
           'warning: legal.cookieBannerMissing',
-          'critical: legal.cookiesBeforeConsent',
+          'warning: legal.ruCookiesBeforeConsent',
         ].sort(),
       );
       // The Italian VAT number is not required on a Russian site.

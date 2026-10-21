@@ -5,7 +5,7 @@ import { checkCookiesBeforeConsent } from './cookie-checks.ts';
 import { checkDuplicateTitles, checkImages, checkMobile, checkSeo, classifyImage, classifyLink, isHttpUrl } from './checks.ts';
 import { extractMobile, extractPage, observeSpeed, readSpeed, scrollThrough, scrollToTop } from './extract.ts';
 import { checkPerformance } from './performance-checks.ts';
-import { RU_CONSENT, checkContent, checkLegal, checkTechnical } from './handover-checks.ts';
+import { RU_CONSENT, checkContent, checkLegal, checkTechnical, isRussianSite } from './handover-checks.ts';
 import { checkUrl, mapWithConcurrency } from './http-check.ts';
 import { buildReport } from './report.ts';
 import { checkSite } from './site-checks.ts';
@@ -140,7 +140,7 @@ const scanSite: Scanner = async (startUrl, options, onProgress) => {
       ...crawl.drafts,
       ...checkDuplicateTitles(crawl.pages),
       ...checkLegal(crawl.pages, startUrl),
-      ...checkCookiesBeforeConsent(cookies, crawl.pages[0]!.url),
+      ...checkCookiesBeforeConsent(cookies, crawl.pages[0]!.url, isRussianSite(crawl.pages[0]!, startUrl)),
     ];
     const warnings = [...crawl.warnings];
     const visited = new Set(crawl.pages.map((page) => page.url));

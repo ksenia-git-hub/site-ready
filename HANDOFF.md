@@ -34,7 +34,7 @@ _Updated on 21 October 2026._
 | **Modern interface** (Tailwind + shadcn/ui) | Professional look, light/dark theme, works on a phone too. |
 | **Stop scan, recent scans** | Stop a scan started by mistake; reopen recent reports from the home page. |
 | **Demo sites with deliberate mistakes** | Try and test the app without a real site (`npm run demo-site`). |
-| **98 automated tests + CI** | Make sure future changes don't break what already works. |
+| **99 automated tests + CI** | Make sure future changes don't break what already works. |
 
 **How the score is computed:**
 
@@ -64,7 +64,7 @@ _Updated on 21 October 2026._
 | Speed | See the details below. |
 | Technical | default server 404 page (no links back to the site), JavaScript errors, page files that fail to load (scripts, CSS, fonts), mixed content, no HTTPS, HTTP not redirecting to HTTPS, SSL certificate expiring (≤ 30 days) |
 | Content | lorem ipsum, links or files from localhost / staging / local IPs, CMS demo text ("Hello world!"), fake e-mails and phone numbers, TODO/FIXME |
-| Legal | privacy policy, cookie policy, cookie banner when trackers are present (GA, Meta Pixel, Yandex Metrica...), VAT number for Italian sites, **tracking cookies stored before consent** |
+| Legal | privacy policy, cookie policy, cookie banner when trackers are present (GA, Meta Pixel, Yandex Metrica...), VAT number for Italian sites, **tracking cookies stored before consent** (critical under GDPR; on Russian sites a warning, `legal.ruCookiesBeforeConsent`, because Russian law has no explicit opt-in-before-loading rule) |
 | Legal (Russia) | See the details below. |
 | Accessibility | axe-core (contrast, unnamed buttons/links/fields, heading order, zoom disabled, ARIA, iframes, video…: about 25 translated rules, the others with axe's English text) + generic link text ("click here"). The report warns that it does not replace a manual audit. |
 
@@ -100,7 +100,7 @@ The Italian VAT number is not required on Russian sites.
 
 ### Verification
 
-- `npm test`: 98 tests pass.
+- `npm test`: 99 tests pass.
   - The end-to-end tests scan the demo sites with Chromium and find exactly the planted problems (35 on the Italian site), with screenshots of every page. A second end-to-end test covers the Russian shop.
   - The translation tests check that the three languages have the same keys, plural forms and placeholders.
 - `npm run typecheck` and `npm run build` pass.

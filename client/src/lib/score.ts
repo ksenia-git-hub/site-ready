@@ -40,6 +40,7 @@ const SITE_WIDE_CODES = new Set<IssueCode>([
   'legal.cookiePolicyMissing',
   'legal.cookieBannerMissing',
   'legal.cookiesBeforeConsent',
+  'legal.ruCookiesBeforeConsent',
   'legal.vatMissing',
   'legal.ruForeignServices',
   'legal.ruSellerDetailsMissing',

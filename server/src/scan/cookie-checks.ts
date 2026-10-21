@@ -35,7 +35,12 @@ export function classifyCookie(cookie: BrowserCookie): string | null {
   return match?.service ?? null;
 }
 
-export function checkCookiesBeforeConsent(cookies: BrowserCookie[], homeUrl: string): IssueDraft[] {
+/**
+ * EU/Italy (GDPR, ePrivacy): analytics cookies only after opt-in, a fine risk, so critical.
+ * Russia has no explicit "block until consent" rule: Roskomnadzor treats such cookies as possibly
+ * personal data under 152-FZ, so it is a warning with its own advice.
+ */
+export function checkCookiesBeforeConsent(cookies: BrowserCookie[], homeUrl: string, russian = false): IssueDraft[] {
   const found = new Map<string, string>();
   const services = new Set<string>();
   for (const cookie of cookies) {
@@ -48,9 +53,9 @@ export function checkCookiesBeforeConsent(cookies: BrowserCookie[], homeUrl: str
 
   return [
     {
-      code: 'legal.cookiesBeforeConsent',
+      code: russian ? 'legal.ruCookiesBeforeConsent' : 'legal.cookiesBeforeConsent',
       category: 'legal',
-      severity: 'critical',
+      severity: russian ? 'warning' : 'critical',
       pageUrl: homeUrl,
       params: { count: found.size, trackers: [...services], cookies: [...found.values()] },
     },

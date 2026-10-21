@@ -131,7 +131,7 @@ It also falls asleep after 15 minutes without visitors, so the first request tak
 
 ## Testing and CI
 
-- **98 automated tests** (Vitest):
+- **99 automated tests** (Vitest):
   - unit tests for every rule file;
   - API tests with a fake scanner;
   - security tests for the login, the rate limiter and the private-address guard;

@@ -64,6 +64,7 @@ export const ISSUE_CODES = [
   'legal.cookiePolicyMissing',
   'legal.cookieBannerMissing',
   'legal.cookiesBeforeConsent',
+  'legal.ruCookiesBeforeConsent',
   'legal.vatMissing',
   'legal.ruConsentMissing',
   'legal.ruConsentPrechecked',
