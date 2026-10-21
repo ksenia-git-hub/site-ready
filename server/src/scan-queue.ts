@@ -18,6 +18,8 @@ export class ScanQueue {
   /** Insertion-ordered, oldest first, so pruning drops the oldest screenshots. */
   readonly #screenshots = new Map<string, PageScreenshots[]>();
   readonly #pending: { job: ScanJobView; options: ScanOptions }[] = [];
+  /** Who started each job (an IP address), to limit how many scans one visitor can run at once. */
+  readonly #owners = new Map<string, string>();
   /** Stops the scan that is running now. */
   #runningController: { id: string; controller: AbortController } | null = null;
   #running = false;
@@ -32,7 +34,16 @@ export class ScanQueue {
     this.#maxJobsWithScreenshots = maxJobsWithScreenshots;
   }
 
-  enqueue(url: string, options: ScanOptions): ScanJobView {
+  /** Queued and running scans, of one owner or of everybody. */
+  activeCount(owner?: string): number {
+    let count = 0;
+    for (const job of this.#jobs.values()) {
+      if ((job.status === 'queued' || job.status === 'running') && (owner === undefined || this.#owners.get(job.id) === owner)) count++;
+    }
+    return count;
+  }
+
+  enqueue(url: string, options: ScanOptions, owner?: string): ScanJobView {
     const job: ScanJobView = {
       id: randomUUID(),
       status: 'queued',
@@ -43,6 +54,7 @@ export class ScanQueue {
       error: null,
     };
     this.#jobs.set(job.id, job);
+    if (owner) this.#owners.set(job.id, owner);
     this.#pending.push({ job, options });
     this.#prune();
     void this.#drain();
@@ -130,6 +142,7 @@ export class ScanQueue {
       if (job.status === 'done' || job.status === 'failed' || job.status === 'cancelled') {
         this.#jobs.delete(id);
         this.#screenshots.delete(id);
+        this.#owners.delete(id);
       }
     }
   }

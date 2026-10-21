@@ -142,7 +142,15 @@ describe('parseTargetUrl', () => {
 
 describe('loadConfig', () => {
   it('uses defaults when variables are missing', () => {
-    expect(loadConfig({})).toEqual({ port: 3000, host: '127.0.0.1' });
+    expect(loadConfig({})).toEqual({
+      port: 3000,
+      host: '127.0.0.1',
+      appPassword: null,
+      sessionSecret: null,
+      blockPrivateTargets: false,
+      trustProxy: false,
+    });
+    expect(loadConfig({ BLOCK_PRIVATE_TARGETS: 'true', APP_PASSWORD: 'x' })).toMatchObject({ blockPrivateTargets: true, appPassword: 'x' });
   });
 
   it('rejects an invalid port', () => {

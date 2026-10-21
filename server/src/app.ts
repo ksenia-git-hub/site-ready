@@ -10,9 +10,13 @@ import {
   type CreateScanRequest,
   type CreateScanResponse,
   type HealthResponse,
+  type LoginRequest,
   type ScreenshotDevice,
+  type SessionResponse,
 } from '@qa/shared';
+import { LoginLimiter, createAuth, type AuthConfig } from './auth.ts';
 import { ScanQueue } from './scan-queue.ts';
+import type { TargetGuard } from './scan/network-guard.ts';
 import { runScan } from './scan/scanner.ts';
 import type { Scanner } from './scan/types.ts';
 
@@ -22,15 +26,76 @@ export interface BuildAppOptions {
   scanner?: Scanner;
   /** Folder with the built client (client/dist). When set, the server also serves the UI. */
   staticDir?: string;
+  /** Password protection; null or absent = open access (local use). */
+  auth?: AuthConfig | null;
+  /** Refuses internal-network addresses (start URL, and everything the scan opens). */
+  guard?: TargetGuard | null;
+  /** Behind a proxy: the visitor's IP comes from X-Forwarded-For. */
+  trustProxy?: boolean;
 }
+
+/** One visitor can have this many scans queued or running at once… */
+const MAX_SCANS_PER_CLIENT = 2;
+/** …and the whole queue holds at most this many. */
+const MAX_QUEUED_SCANS = 20;
+/** API routes reachable without logging in. */
+const PUBLIC_ROUTES = new Set(['/api/health', '/api/session', '/api/login', '/api/logout']);
 
 // The app is built by a factory instead of being started at import time,
 // so tests can create an instance and call routes via app.inject() without opening a port.
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
-  const app = Fastify({ logger: options.logger ?? false });
+  const app = Fastify({ logger: options.logger ?? false, trustProxy: options.trustProxy ?? false });
   const queue = new ScanQueue(options.scanner ?? runScan);
+  const auth = options.auth ? createAuth(options.auth) : null;
+  const loginLimiter = new LoginLimiter();
+  const guard = options.guard ?? undefined;
 
   app.get('/api/health', async (): Promise<HealthResponse> => ({ status: 'ok' }));
+
+  // Every other API route (scans, reports, screenshots) needs the session cookie when a password is set.
+  app.addHook('onRequest', async (request, reply) => {
+    const path = request.url.split('?')[0]!;
+    if (!auth || !path.startsWith('/api/') || PUBLIC_ROUTES.has(path)) return;
+    if (!auth.isAuthenticated(request.headers.cookie)) {
+      return reply.code(401).send(apiError('unauthorized', 'Log in first'));
+    }
+  });
+
+  app.get('/api/session', async (request): Promise<SessionResponse> => ({
+    authRequired: auth !== null,
+    authenticated: auth === null || auth.isAuthenticated(request.headers.cookie),
+  }));
+
+  app.post<{ Body: LoginRequest }>(
+    '/api/login',
+    {
+      schema: {
+        body: {
+          type: 'object',
+          required: ['password'],
+          additionalProperties: false,
+          properties: { password: { type: 'string', maxLength: 200 } },
+        },
+      },
+    },
+    async (request, reply) => {
+      if (!auth) return { ok: true };
+      if (loginLimiter.isBlocked(request.ip)) {
+        return reply.code(429).send(apiError('tooManyAttempts', 'Too many wrong passwords, try again later'));
+      }
+      if (!auth.checkPassword(request.body.password)) {
+        loginLimiter.recordFailure(request.ip);
+        return reply.code(401).send(apiError('wrongPassword', 'Wrong password'));
+      }
+      loginLimiter.reset(request.ip);
+      return reply.header('set-cookie', auth.sessionCookie(request.protocol === 'https')).send({ ok: true });
+    },
+  );
+
+  app.post('/api/logout', async (request, reply) => {
+    if (auth) reply.header('set-cookie', auth.logoutCookie(request.protocol === 'https'));
+    return reply.send({ ok: true });
+  });
 
   app.post<{ Body: CreateScanRequest }>(
     '/api/scans',
@@ -52,7 +117,13 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       if (!url) {
         return reply.code(400).send(apiError('invalidUrl', 'Not a valid http(s) address'));
       }
-      const job = queue.enqueue(url, { maxPages: request.body.maxPages ?? DEFAULT_MAX_PAGES });
+      if (guard && !(await guard(url))) {
+        return reply.code(400).send(apiError('privateAddress', 'Addresses of internal networks cannot be scanned'));
+      }
+      if (queue.activeCount(request.ip) >= MAX_SCANS_PER_CLIENT || queue.activeCount() >= MAX_QUEUED_SCANS) {
+        return reply.code(429).send(apiError('tooManyScans', 'Too many scans at once, wait for one to finish'));
+      }
+      const job = queue.enqueue(url, { maxPages: request.body.maxPages ?? DEFAULT_MAX_PAGES, guard }, request.ip);
       const body: CreateScanResponse = { id: job.id };
       return reply.code(202).send(body);
     },

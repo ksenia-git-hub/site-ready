@@ -23,6 +23,7 @@ import {
   type ProgressFn,
   type ScanOptions,
   type Scanner,
+  type UrlCheckResult,
 } from './types.ts';
 
 const NAVIGATION_TIMEOUT_MS = 30_000;
@@ -73,7 +74,8 @@ const scanSite: Scanner = async (startUrl, options, onProgress) => {
   };
   throwIfCancelled();
   onProgress({ step: 'starting' });
-  const browser = await chromium.launch();
+  // Docker gives containers a tiny /dev/shm: Chromium would crash on big pages without this flag.
+  const browser = await chromium.launch({ args: ['--disable-dev-shm-usage'] });
   // Stopping closes the browser at once: a page that is loading fails and the crawl ends.
   const closeOnCancel = () => void browser.close();
   signal?.addEventListener('abort', closeOnCancel, { once: true });
@@ -82,6 +84,19 @@ const scanSite: Scanner = async (startUrl, options, onProgress) => {
     const desktop = await browser.newContext({ viewport: { width: 1366, height: 900 } });
     await desktop.addInitScript(observeSpeed);
     const mobile = await browser.newContext(MOBILE_CONTEXT);
+    if (options.guard) {
+      // Pages, redirects, scripts, images…: nothing may come from an internal network.
+      const guard = options.guard;
+      for (const context of [desktop, mobile]) {
+        await context.route('**/*', async (route) =>
+          (await guard(route.request().url())) ? route.continue() : route.abort('blockedbyclient'),
+        );
+      }
+    }
+    const check = async (url: string): Promise<UrlCheckResult> =>
+      options.guard && !(await options.guard(url))
+        ? { status: null, contentLength: null, contentType: null, failure: { reason: 'blocked' }, elapsedMs: 0 }
+        : checkUrl(url, undefined, signal);
 
     const crawl = await crawlSite(startUrl, options, desktop, mobile, onProgress);
     throwIfCancelled();
@@ -107,7 +122,7 @@ const scanSite: Scanner = async (startUrl, options, onProgress) => {
     let linksDone = 0;
     await mapWithConcurrency(links, HTTP_CONCURRENCY, async ([url, foundOn]) => {
       if (signal?.aborted) return;
-      const issue = classifyLink(url, await checkUrl(url, undefined, signal), [...foundOn], isInternal(url));
+      const issue = classifyLink(url, await check(url), [...foundOn], isInternal(url));
       if (issue) drafts.push(issue);
       onProgress({ step: 'links', done: ++linksDone, total: links.length });
     });
@@ -118,7 +133,7 @@ const scanSite: Scanner = async (startUrl, options, onProgress) => {
     let imagesDone = 0;
     await mapWithConcurrency(images, HTTP_CONCURRENCY, async ([url, foundOn]) => {
       if (signal?.aborted) return;
-      drafts.push(...classifyImage(url, await checkUrl(url, undefined, signal), [...foundOn]));
+      drafts.push(...classifyImage(url, await check(url), [...foundOn]));
       onProgress({ step: 'images', done: ++imagesDone, total: images.length });
     });
 
@@ -433,5 +448,6 @@ function navigationFailure(error: unknown): Failure {
   if (/ERR_CONNECTION_RESET|ERR_CONNECTION_CLOSED/.test(message)) return { reason: 'reset' };
   if (/ERR_CERT_DATE_INVALID/.test(message)) return { reason: 'certExpired' };
   if (/ERR_CERT_/.test(message)) return { reason: 'certInvalid' };
+  if (/ERR_BLOCKED_BY_CLIENT/.test(message)) return { reason: 'blocked' };
   return { reason: 'other', message };
 }

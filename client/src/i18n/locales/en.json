@@ -172,7 +172,8 @@
     "http": "HTTP {{status}}",
     "notHtml": "not an HTML page",
     "noResponse": "no response from the server",
-    "other": "{{message}}"
+    "other": "{{message}}",
+    "blocked": "the address is in an internal network, checking it is not allowed"
   },
   "scanError": {
     "startPage": "Could not open {{url}}: {{reason}}.",
@@ -184,7 +185,12 @@
     "notFound": "Not found.",
     "httpError": "Server error (HTTP {{status}}).",
     "network": "Could not reach the server.",
-    "notCancellable": "The scan has already finished."
+    "notCancellable": "The scan has already finished.",
+    "privateAddress": "Addresses of internal networks (localhost, 192.168.x.x, 10.x.x.x…) cannot be scanned.",
+    "unauthorized": "Your session has expired: sign in again.",
+    "wrongPassword": "Wrong password.",
+    "tooManyAttempts": "Too many wrong attempts. Try again in 15 minutes.",
+    "tooManyScans": "You already have 2 scans running: wait for one to finish."
   },
   "lists": {
     "foundOn_one": "Found on {{count}} page:",
@@ -704,5 +710,12 @@
     "content": "Placeholder content is still there: the site looks unfinished.",
     "legal": "Risk of fines under privacy and personal data laws.",
     "accessibility": "People with disabilities struggle to use the site."
+  },
+  "auth": {
+    "title": "Sign in",
+    "subtitle": "Enter the password to use Site Ready.",
+    "password": "Password",
+    "submit": "Sign in",
+    "logout": "Sign out"
   }
 }

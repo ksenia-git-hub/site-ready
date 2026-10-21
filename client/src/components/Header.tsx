@@ -1,9 +1,12 @@
-import { ShieldCheck } from 'lucide-react';
+import { LogOut, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { LanguageMenu } from './LanguageMenu.tsx';
 import { ThemeMenu } from './ThemeMenu.tsx';
 
-export function Header({ onHome }: { onHome: () => void }) {
+/** onLogout is given only when the server has a password and the user is logged in. */
+export function Header({ onHome, onLogout }: { onHome: () => void; onLogout?: () => void }) {
   const { t } = useTranslation();
 
   return (
@@ -19,6 +22,16 @@ export function Header({ onHome }: { onHome: () => void }) {
         <div className="flex items-center gap-1">
           <ThemeMenu />
           <LanguageMenu />
+          {onLogout && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon-sm" onClick={onLogout} aria-label={t('auth.logout')}>
+                  <LogOut />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('auth.logout')}</TooltipContent>
+            </Tooltip>
+          )}
         </div>
       </div>
     </header>

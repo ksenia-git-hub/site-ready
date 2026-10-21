@@ -113,6 +113,8 @@ export const FAILURE_REASONS = [
   'http',
   'notHtml',
   'noResponse',
+  /** The address is in an internal network: a public deployment refuses to contact it. */
+  'blocked',
   'other',
 ] as const;
 export type FailureReason = (typeof FAILURE_REASONS)[number];
@@ -268,7 +270,27 @@ export interface CreateScanResponse {
   id: string;
 }
 
-export type ApiErrorCode = 'invalidUrl' | 'scanNotFound' | 'notFound' | 'notCancellable';
+export type ApiErrorCode =
+  | 'invalidUrl'
+  | 'privateAddress'
+  | 'scanNotFound'
+  | 'notFound'
+  | 'notCancellable'
+  | 'unauthorized'
+  | 'wrongPassword'
+  | 'tooManyAttempts'
+  | 'tooManyScans';
+
+/** What GET /api/session returns: whether a password is needed and whether this browser is logged in. */
+export interface SessionResponse {
+  authRequired: boolean;
+  authenticated: boolean;
+}
+
+/** Body of POST /api/login. */
+export interface LoginRequest {
+  password: string;
+}
 
 /**
  * Error body returned by the API for 4xx/5xx responses. Our own errors use an ApiErrorCode;

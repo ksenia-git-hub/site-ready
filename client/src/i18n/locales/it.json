@@ -172,7 +172,8 @@
     "http": "HTTP {{status}}",
     "notHtml": "non è una pagina HTML",
     "noResponse": "nessuna risposta dal server",
-    "other": "{{message}}"
+    "other": "{{message}}",
+    "blocked": "l’indirizzo è in una rete interna, il controllo non è consentito"
   },
   "scanError": {
     "startPage": "Impossibile aprire {{url}}: {{reason}}.",
@@ -184,7 +185,12 @@
     "notFound": "Risorsa non trovata.",
     "httpError": "Errore del server (HTTP {{status}}).",
     "network": "Impossibile contattare il server.",
-    "notCancellable": "La scansione è già terminata."
+    "notCancellable": "La scansione è già terminata.",
+    "privateAddress": "Non si possono controllare indirizzi di reti interne (localhost, 192.168.x.x, 10.x.x.x…).",
+    "unauthorized": "La sessione è scaduta: accedi di nuovo.",
+    "wrongPassword": "Password errata.",
+    "tooManyAttempts": "Troppi tentativi sbagliati. Riprova tra 15 minuti.",
+    "tooManyScans": "Hai già 2 scansioni in corso: aspetta che ne finisca una."
   },
   "lists": {
     "foundOn_one": "Presente in {{count}} pagina:",
@@ -704,5 +710,12 @@
     "content": "Sono rimasti testi di prova: il sito sembra non finito.",
     "legal": "Rischio di sanzioni per le leggi su privacy e dati personali.",
     "accessibility": "Le persone con disabilità fanno fatica a usare il sito."
+  },
+  "auth": {
+    "title": "Accesso",
+    "subtitle": "Inserisci la password per usare Site Ready.",
+    "password": "Password",
+    "submit": "Entra",
+    "logout": "Esci"
   }
 }

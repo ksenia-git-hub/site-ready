@@ -1,9 +1,12 @@
 import type { Failure, Issue, PageMetrics, ScanProgress, ScanReport } from '@qa/shared';
+import type { TargetGuard } from './network-guard.ts';
 
 export interface ScanOptions {
   maxPages: number;
   /** Aborted when the user stops the scan: the scanner closes the browser and gives up quickly. */
   signal?: AbortSignal;
+  /** On a public deployment: refuses internal-network addresses (pages, files, links, images). */
+  guard?: TargetGuard;
 }
 
 export type ProgressFn = (progress: ScanProgress) => void;

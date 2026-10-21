@@ -33,7 +33,7 @@ Prima versione funzionante, **in locale**: frontend e backend sono completi e ve
 | **Interrompi scansione** | Ferma una scansione in corso (indirizzo sbagliato, ripensamento) e riporta alla home con l'indirizzo nel campo da correggere. |
 | **Scansioni recenti** | Riapre al volo gli ultimi report dalla home. |
 | **Sito demo con errori voluti** | Permette di provare e testare l'app senza un sito vero (`npm run demo-site`). |
-| **88 test automatici** | Garantiscono che le modifiche future non rompano quello che già funziona. |
+| **96 test automatici** | Garantiscono che le modifiche future non rompano quello che già funziona. |
 
 ### Cosa fa
 
@@ -66,7 +66,7 @@ Prima versione funzionante, **in locale**: frontend e backend sono completi e ve
 
 ### Verifiche fatte
 
-- `npm test`: 88 test passati (compreso un test end-to-end sul negozio demo russo).
+- `npm test`: 96 test passati (compreso un test end-to-end sul negozio demo russo).
   - Uno end-to-end scansiona con Chromium il sito demo e ritrova esattamente i 35 problemi messi apposta, con gli screenshot di tutte le pagine.
   - I test delle traduzioni verificano che le tre lingue abbiano le stesse chiavi, i plurali e i segnaposto.
 - Lingue verificate da browser: cambio con le bandiere, scelta ricordata dopo il ricaricamento, browser in tedesco → inglese, browser in italiano → italiano. Le traduzioni russe e inglesi le ho scritte io: conviene che le rilegga qualcuno di madrelingua prima di mostrarle ai clienti.
@@ -80,10 +80,18 @@ npm run demo-site   # terminale 1: sito con errori voluti su :4000 e negozio rus
 npm run dev         # terminale 2: apri http://localhost:5173 e scansiona localhost:4000
 ```
 
+## Pubblicazione (pronta, manca solo l’hosting)
+
+- **Password** (`APP_PASSWORD`): se impostata, l’app chiede la password (una per tutti i colleghi); cookie firmato HttpOnly valido 30 giorni; max 10 tentativi sbagliati in 15 minuti per IP; pulsante «Esci». Senza password l’app è aperta (uso locale).
+- **Blocco reti interne** (`BLOCK_PRIVATE_TARGETS=true`): rifiuta localhost, 10.x, 172.16–31.x, 192.168.x, 169.254.x (metadati cloud) ecc. per l’indirizzo iniziale e per tutto ciò che la scansione apre (pagine, redirect, file, link, immagini).
+- **Limiti**: max 2 scansioni contemporanee per visitatore, max 20 in coda.
+- **Dockerfile**: Node 24 + Chromium di Playwright, build del client, utente non root, healthcheck su `/api/health`. Imposta già `HOST=0.0.0.0`, `BLOCK_PRIVATE_TARGETS=true`, `TRUST_PROXY=true`. Sull’hosting va impostato solo `APP_PASSWORD` (e se si vuole `SESSION_SECRET`). **Non ancora provato**: Docker non è installato su questo PC, la prima build si farà sull’hosting.
+- Memoria consigliata: **2 GB** (Chromium + screenshot a pagina intera).
+
 ## Limiti noti
 
-- La coda è in memoria: i report si perdono al riavvio, e c'è una sola scansione alla volta.
-- Nessuna autenticazione e nessun blocco degli indirizzi interni (localhost, 10.x, 192.168.x...). In locale va bene, **online no**.
+- La coda è in memoria: i report si perdono al riavvio o a ogni nuova pubblicazione, e c’è una sola scansione alla volta.
+- Il blocco delle reti interne controlla l’IP al momento della risoluzione DNS: un attacco di «DNS rebinding» molto mirato resta teoricamente possibile.
 - I link verso pagine già visitate dal browser non vengono ricontrollati via HTTP; il conteggio "Link controllati" li esclude.
 - Limiti fissi: 500 link e 300 immagini per scansione (oltre compare un avviso nel report).
 - La velocità è misurata senza simulare una rete mobile e senza Lighthouse: è indicativa, non un punteggio Google ufficiale.
@@ -91,14 +99,10 @@ npm run dev         # terminale 2: apri http://localhost:5173 e scansiona localh
 
 ## Prossimi passi
 
-1. **Primo commit** e creazione del repository su GitHub.
-2. **Deploy su Render** (deciso): un solo Web Service da Dockerfile basato sull'immagine `mcr.microsoft.com/playwright`, con `render.yaml`.
-   - In produzione `HOST=0.0.0.0`; `PORT` arriva da Render.
-   - Il server serve già `client/dist`, quindi basta `npm run build` nell'immagine.
-   - Attenzione alla RAM: Chromium con 512 MB è al limite.
-3. **Prima di andare online**: protezione con password/token (variabile d'ambiente) e blocco degli IP privati per evitare abusi.
-4. Funzioni proposte e non ancora fatte:
-   - velocità: misure leggere su tutte le pagine, ed eventualmente Lighthouse sulla home (più memoria su Render);
+1. **GitHub**: l’utente crea un repository privato vuoto e manda l’indirizzo; poi `git remote add origin …` e `git push`.
+2. **Hosting** (da decidere): Render (pagamento con carta estera, piano con 2 GB) oppure un server cloud russo (Timeweb Cloud, Selectel, Yandex Cloud) con Docker. Lo stesso Dockerfile va bene per entrambi.
+3. Funzioni proposte e non ancora fatte:
    - PDF con logo e dati dello studio;
-   - storico delle scansioni con confronto prima/dopo (Postgres o disco persistente su Render).
-5. Il bundle JS principale pesa circa 530 KB (169 KB compresso), quasi tutto React + Radix + i18next: è normale, Vite mostra solo un avviso.
+   - salvataggio dei report (database) e storico con confronto prima/dopo;
+   - suggerimenti dei termini (LCP, CLS, noindex…) e pulsante «non è un problema — nascondi».
+4. Il bundle JS principale pesa circa 530 KB (169 KB compresso), quasi tutto React + Radix + i18next: è normale, Vite mostra solo un avviso.

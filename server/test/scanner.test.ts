@@ -1,6 +1,7 @@
 // End-to-end test of the real scanner: starts Chromium and scans the local demo site.
 import type { Server } from 'node:http';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { createTargetGuard } from '../src/scan/network-guard.ts';
 import { runScan } from '../src/scan/scanner.ts';
 import { ScanCancelledError, ScanError } from '../src/scan/types.ts';
 import { startDemoSite, startRussianDemoSite } from './demo-site.ts';
@@ -90,6 +91,12 @@ describe('runScan on the demo site', () => {
 
     await expect(scan).rejects.toBeInstanceOf(ScanCancelledError);
     expect(Date.now() - started).toBeLessThan(10_000);
+  });
+
+  it('refuses to open internal addresses when the guard is on', { timeout: 60_000 }, async () => {
+    // The demo site runs on localhost: with the guard, the browser must not load it.
+    const scan = runScan(site.url, { maxPages: 1, guard: createTargetGuard() }, () => {});
+    await expect(scan).rejects.toMatchObject({ failure: { reason: 'blocked' } });
   });
 
   it('fails with a reason when the start page does not open', { timeout: 60_000 }, async () => {

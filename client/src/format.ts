@@ -6,7 +6,17 @@ import { ApiRequestError } from './api.ts';
 /** How many items of a list to show before "…and N more". */
 export const LIST_LIMIT = 5;
 
-const API_ERROR_CODES = ['invalidUrl', 'scanNotFound', 'notFound', 'notCancellable'] as const;
+const API_ERROR_CODES = [
+  'invalidUrl',
+  'privateAddress',
+  'scanNotFound',
+  'notFound',
+  'notCancellable',
+  'unauthorized',
+  'wrongPassword',
+  'tooManyAttempts',
+  'tooManyScans',
+] as const;
 
 export function formatDuration(ms: number, t: TFunction): string {
   const total = Math.round(ms / 1000);

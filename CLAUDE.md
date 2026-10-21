@@ -26,6 +26,8 @@ Monorepo con npm workspaces, Node ≥ 24, TypeScript.
 - `shared/src/index.ts`: contratto dei dati tra server e client (`Issue`, `ScanReport`, `ScanJobView`, `CreateScanRequest`...). Se cambia un tipo qui, aggiornare entrambi i lati.
 - `server/` (Fastify):
   - `src/app.ts`: `buildApp()` con le rotte `GET /api/health`, `POST /api/scans` (risponde 202 con `{ id }`), `GET /api/scans/:id`, `POST /api/scans/:id/cancel` (ferma una scansione in coda o in corso; 409 se è già finita), `GET /api/scans/:id/screenshots/:page/:device` (JPEG), più il servizio di `client/dist` (file letti dal disco a ogni richiesta; un file mancante dà 404, non index.html).
+  - `src/auth.ts`: password unica (`APP_PASSWORD`), cookie di sessione firmato, limite ai tentativi. Con la password impostata, tutte le rotte `/api/*` tranne `health`, `session`, `login`, `logout` rispondono 401 `unauthorized` senza cookie.
+  - `src/scan/network-guard.ts`: con `BLOCK_PRIVATE_TARGETS=true` blocca gli indirizzi di reti interne (indirizzo iniziale nell’API; nel browser tramite `context.route`; nel controllo di link e immagini). Va tenuto attivo su qualsiasi server pubblico.
   - `src/scan-queue.ts`: coda in memoria, una scansione alla volta (la scansione in corso riceve un `AbortSignal`: lo scanner chiude il browser e lancia `ScanCancelledError`), tiene gli ultimi 50 job, ma gli screenshot solo degli ultimi 10 perché occupano molta memoria. Si perde tutto al riavvio.
   - `src/scan/scanner.ts`: `runScan`. Visita in ampiezza fino a `maxPages` pagine dello stesso dominio con Playwright, in contesto desktop (1366px) e mobile (375px), poi controlla via HTTP tutti i link e le immagini trovati.
   - Regole **pure**, senza rete né browser, che trasformano i dati raccolti in `Issue`:
@@ -58,4 +60,4 @@ Monorepo con npm workspaces, Node ≥ 24, TypeScript.
 - Gravità: `critical` = da correggere prima della consegna; `warning` = da correggere; `info` = suggerimento. I siti esterni che bloccano i bot (401/403/429/999) sono `info`, non errori.
 - Nei test si usa uno scanner finto passato a `buildApp({ scanner })`. Le regole nuove si testano nel file di test della regola (`checks`, `handover-checks`, `cookie-checks`, `accessibility`); la pagina di esempio senza problemi è in `server/test/fixtures.ts`. Se un controllo si può dimostrare sul sito demo, aggiungere il caso in `server/test/demo-site.ts` e in `scanner.test.ts`.
 - Il client parla solo con `/api/...`: in sviluppo ci pensa il proxy di Vite, in produzione lo stesso server. Niente CORS.
-- I segreti vanno in `.env` (ignorato da git); `.env.example` documenta le variabili.
+- I segreti vanno in `.env` (ignorato da git); `.env.example` documenta le variabili. In produzione si usa il `Dockerfile` (imposta HOST, BLOCK_PRIVATE_TARGETS e TRUST_PROXY); sull’hosting si imposta solo `APP_PASSWORD`.

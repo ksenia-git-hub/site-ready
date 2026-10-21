@@ -3,9 +3,10 @@ import { CircleAlert, Loader2, ServerOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { DEFAULT_MAX_PAGES, type ScanJobView } from '@qa/shared';
-import { api } from './api.ts';
+import { UNAUTHORIZED_EVENT, api } from './api.ts';
 import { Header } from './components/Header.tsx';
 import { Home } from './components/Home.tsx';
+import { Login } from './components/Login.tsx';
 import { ScanProgress } from './components/ScanProgress.tsx';
 import { apiErrorText, scanFailureText } from './format.ts';
 import { clearRecentScans, loadRecentScans, removeRecentScan, saveRecentScan, type RecentScan } from './lib/recent-scans.ts';
@@ -13,6 +14,8 @@ import { qualityScore } from './lib/score.ts';
 
 /** Whether the scan server answers; only used to explain why scans can't start. */
 type ApiState = 'checking' | 'online' | 'offline';
+/** "required": the server has a password and this browser must log in first. */
+type AuthState = 'checking' | 'required' | 'open' | 'loggedIn';
 
 const POLL_INTERVAL_MS = 1500;
 
@@ -22,6 +25,7 @@ const Report = lazy(() => import('./components/Report.tsx').then((module) => ({ 
 export function App() {
   const { t } = useTranslation();
   const [apiState, setApiState] = useState<ApiState>('checking');
+  const [authState, setAuthState] = useState<AuthState>('checking');
   const [jobId, setJobId] = useState<string | null>(null);
   const [job, setJob] = useState<ScanJobView | null>(null);
   // The error itself, not its text: the text is built at render time so it follows language changes.
@@ -31,13 +35,38 @@ export function App() {
   useEffect(() => {
     const controller = new AbortController();
     api
-      .health(controller.signal)
-      .then((body) => setApiState(body.status === 'ok' ? 'online' : 'offline'))
+      .session(controller.signal)
+      .then((session) => {
+        setApiState('online');
+        setAuthState(!session.authRequired ? 'open' : session.authenticated ? 'loggedIn' : 'required');
+      })
       .catch(() => {
-        if (!controller.signal.aborted) setApiState('offline');
+        if (controller.signal.aborted) return;
+        setApiState('offline');
+        setAuthState('open');
       });
     return () => controller.abort();
   }, []);
+
+  // Session expired or password changed while using the app: back to the login screen.
+  useEffect(() => {
+    const onUnauthorized = () => {
+      setAuthState('required');
+      setJobId(null);
+      setJob(null);
+      setRequestError(null);
+    };
+    window.addEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
+    return () => window.removeEventListener(UNAUTHORIZED_EVENT, onUnauthorized);
+  }, []);
+
+  const logout = async () => {
+    await api.logout().catch(() => {});
+    setJobId(null);
+    setJob(null);
+    setRequestError(null);
+    setAuthState('required');
+  };
 
   // Poll the job until it finishes: simpler than WebSockets and plenty for scans that take a minute or two.
   useEffect(() => {
@@ -142,9 +171,13 @@ export function App() {
 
   return (
     <div className="min-h-svh">
-      <Header onHome={reset} />
+      <Header onHome={reset} onLogout={authState === 'loggedIn' ? logout : undefined} />
       <main>
-        {finished ? (
+        {authState === 'checking' ? (
+          <Loader2 className="mx-auto mt-24 size-6 animate-spin text-muted-foreground" />
+        ) : authState === 'required' ? (
+          <Login onLoggedIn={() => setAuthState('loggedIn')} />
+        ) : finished ? (
           <Suspense fallback={<Loader2 className="mx-auto mt-24 size-6 animate-spin text-muted-foreground" />}>
             <Report key={job.id} jobId={job.id} report={job.report!} createdAt={job.createdAt} onNewScan={reset} />
           </Suspense>

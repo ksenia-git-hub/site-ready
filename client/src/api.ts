@@ -1,4 +1,7 @@
-import type { ApiError, CreateScanRequest, CreateScanResponse, HealthResponse, ScanJobView } from '@qa/shared';
+import type { ApiError, CreateScanRequest, CreateScanResponse, ScanJobView, SessionResponse } from '@qa/shared';
+
+/** Fired when the server answers "log in first" (session expired, password changed): the app shows the login. */
+export const UNAUTHORIZED_EVENT = 'site-ready:unauthorized';
 
 /** A failed API call. Kept as data (not a sentence) so the UI can show it in the current language. */
 export class ApiRequestError extends Error {
@@ -23,13 +26,24 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
   if (!response.ok) {
     const body = (await response.json().catch(() => ({}))) as ApiError;
+    if (response.status === 401 && body.code === 'unauthorized') window.dispatchEvent(new Event(UNAUTHORIZED_EVENT));
     throw new ApiRequestError(response.status, body);
   }
   return response.json() as Promise<T>;
 }
 
 export const api = {
-  health: (signal?: AbortSignal) => request<HealthResponse>('/api/health', { signal }),
+  /** Whether a password is needed and whether this browser is logged in; also tells if the server is up. */
+  session: (signal?: AbortSignal) => request<SessionResponse>('/api/session', { signal }),
+
+  login: (password: string) =>
+    request<{ ok: true }>('/api/login', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ password }),
+    }),
+
+  logout: () => request<{ ok: true }>('/api/logout', { method: 'POST' }),
 
   createScan: (body: CreateScanRequest) =>
     request<CreateScanResponse>('/api/scans', {
