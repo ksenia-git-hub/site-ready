@@ -1,5 +1,7 @@
 # Site Ready
 
+[![CI](https://github.com/ksenia-git-hub/site-ready/actions/workflows/ci.yml/badge.svg)](https://github.com/ksenia-git-hub/site-ready/actions/workflows/ci.yml)
+
 **Automated quality check for a website before it is handed over to the client.**
 
 Enter a URL. Site Ready opens the site in a real browser on desktop and on a phone, follows the internal links and returns a scored report. The report covers broken links, SEO mistakes, forgotten placeholder content, slow pages, accessibility issues and missing legal requirements for the EU/Italy and Russia. It can be read, filtered and printed to PDF in Italian, English or Russian.
