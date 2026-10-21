@@ -45,7 +45,7 @@ describe('runScan on the demo site', () => {
         'warning: performance.slowServer', // /chi-siamo answers after 1.2 s
         'warning: performance.layoutShift', // /contatti late banner
         'info: performance.noCache',
-        'info: performance.legacyImageFormats', // pesante.jpg
+        'info: performance.legacyImageFormats', // pesante.png
         'warning: technical.jsErrors',
         'warning: technical.failedResources',
         'warning: technical.default404Page',
