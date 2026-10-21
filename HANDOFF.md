@@ -8,7 +8,7 @@ _Updated on 21 October 2026._
 
 - The first complete version works locally: frontend, backend, tests and the Docker setup are done.
 - Published on GitHub (https://github.com/ksenia-git-hub/site-ready) with a README and CI that passes.
-- Being deployed on Render Free (see Deployment).
+- Deployed on Render Free: https://site-ready.onrender.com (password-protected). A 3-page scan of a real site took 1 min 41 s there (about 35 s locally).
 
 ### What was built and why
 
@@ -172,7 +172,7 @@ npm run dev         # terminal 2: open http://localhost:5173 and scan localhost:
 ## Next steps
 
 1. **GitHub:** done: https://github.com/ksenia-git-hub/site-ready (public, commits signed with the GitHub noreply address).
-2. **Hosting:** create the Render Blueprint from the repository and check a real scan on the free instance. If 512 MB turns out too small, the same Dockerfile runs on a paid 2 GB plan or a cloud server without `LOW_MEMORY`.
+2. **Hosting:** done, Render Free via `render.yaml`. For faster scans and more pages, switch the plan to a paid instance and remove `LOW_MEMORY`.
 3. Proposed features not done yet:
    - PDF with the studio's logo and details;
    - saved reports (database) and history with a before/after comparison;

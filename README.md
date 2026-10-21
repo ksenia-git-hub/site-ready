@@ -6,6 +6,14 @@
 
 Enter a URL. Site Ready opens the site in a real browser on desktop and on a phone, follows the internal links and returns a scored report. The report covers broken links, SEO mistakes, forgotten placeholder content, slow pages, accessibility issues and missing legal requirements for the EU/Italy and Russia. It can be read, filtered and printed to PDF in Italian, English or Russian.
 
+**Live demo:** [site-ready.onrender.com](https://site-ready.onrender.com). The demo is password-protected; the password is available on request. It runs on Render's free instance:
+
+- the first visit after 15 idle minutes takes about a minute while the server wakes up;
+- a scan covers up to 3 pages and takes 1–2 minutes;
+- it skips embedded maps and videos to stay within 512 MB.
+
+Run locally, the same scan takes about 30 seconds and up to 50 pages.
+
 ![Report overview](docs/screenshots/report.png)
 
 | | |
