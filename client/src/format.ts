@@ -16,6 +16,8 @@ const API_ERROR_CODES = [
   'wrongPassword',
   'tooManyAttempts',
   'tooManyScans',
+  // Client-side: the scan disappeared because the server restarted while it was running.
+  'serverRestarted',
 ] as const;
 
 export function formatDuration(ms: number, t: TFunction): string {
@@ -74,5 +76,5 @@ export function apiErrorText(error: unknown, t: TFunction): string {
   const known = API_ERROR_CODES.find((code) => code === error.code);
   if (known) return t(`api.${known}`);
   // Fastify's own errors (e.g. validation) only come with an English message.
-  return error.message || t('api.httpError', { status: error.status });
+  return error.serverMessage || t('api.httpError', { status: error.status });
 }

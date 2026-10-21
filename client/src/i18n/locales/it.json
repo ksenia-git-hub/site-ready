@@ -181,6 +181,7 @@
   },
   "api": {
     "invalidUrl": "Indirizzo non valido: inserisci un URL come https://www.esempio.it",
+    "serverRestarted": "Il server si è riavviato durante la scansione: probabilmente il sito è troppo pesante per il server di prova. Riprova con meno pagine.",
     "scanNotFound": "Scansione non trovata (forse il server è stato riavviato).",
     "notFound": "Risorsa non trovata.",
     "httpError": "Errore del server (HTTP {{status}}).",

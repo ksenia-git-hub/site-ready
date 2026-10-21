@@ -115,6 +115,7 @@ The image already sets `HOST=0.0.0.0`, `BLOCK_PRIVATE_TARGETS=true` and `TRUST_P
 
 - at most 3 pages per scan;
 - lighter screenshots;
+- embedded maps and videos are not loaded (one page with three embedded maps needed 1.3 GB);
 - longer page timeouts;
 - fewer reports kept in memory.
 

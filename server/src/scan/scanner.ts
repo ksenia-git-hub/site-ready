@@ -1,4 +1,4 @@
-import { chromium, devices, type BrowserContext, type Page } from 'playwright';
+import { chromium, devices, type BrowserContext, type Page, type Request } from 'playwright';
 import type { Failure, ScanWarning } from '@qa/shared';
 import { checkAccessibility, runAxe } from './accessibility.ts';
 import { checkCookiesBeforeConsent } from './cookie-checks.ts';
@@ -29,15 +29,27 @@ import {
 /** How pages are loaded and captured; lighter on a small server. */
 interface CaptureSettings {
   navigationTimeoutMs: number;
-  /** Screenshots cover the whole page, up to this height (CSS pixels) for very long pages. */
+  /**
+   * Scroll through the whole page (so lazy images load) and capture all of it, up to maxPageHeight
+   * CSS pixels. Off: only the first screen, which keeps image-heavy pages from using gigabytes.
+   */
+  fullPage: boolean;
   maxPageHeight: number;
   jpegQuality: number;
   /** Phone rendering density: 2 is sharper, 1 needs a quarter of the memory. */
   phoneScale: number;
+  /**
+   * Don't load what embedded frames (maps, videos, widgets) contain. Three embedded maps took
+   * a page to 1.3 GB; the iframe elements themselves stay in the page and are still checked.
+   */
+  skipIframes: boolean;
 }
-const NORMAL_CAPTURE: CaptureSettings = { navigationTimeoutMs: 30_000, maxPageHeight: 15_000, jpegQuality: 60, phoneScale: 2 };
-/** A tiny CPU loads pages slowly, and long full-page screenshots can run out of memory. */
-const LOW_MEMORY_CAPTURE: CaptureSettings = { navigationTimeoutMs: 60_000, maxPageHeight: 5_000, jpegQuality: 45, phoneScale: 1 };
+const NORMAL_CAPTURE: CaptureSettings = { navigationTimeoutMs: 30_000, fullPage: true, maxPageHeight: 15_000, jpegQuality: 60, phoneScale: 2, skipIframes: false };
+/**
+ * A tiny CPU loads pages slowly. Scrolling a photo-heavy page loads every image: one portfolio page
+ * took the browser to 1.3 GB, so on 512 MB only the first screen is loaded and captured.
+ */
+const LOW_MEMORY_CAPTURE: CaptureSettings = { navigationTimeoutMs: 60_000, fullPage: true, maxPageHeight: 5_000, jpegQuality: 45, phoneScale: 1, skipIframes: true };
 /** Requests remembered per page (for dev links, trackers and mixed content). */
 const MAX_REQUESTS_PER_PAGE = 500;
 const MAX_LINKS = 500;
@@ -86,7 +98,8 @@ const scanSite: Scanner = async (startUrl, options, onProgress) => {
   // Docker gives containers a tiny /dev/shm: Chromium would crash on big pages without this flag.
   const args = ['--disable-dev-shm-usage'];
   // One renderer process for all tabs, no GPU process: less memory on a small server.
-  if (options.lowMemory) args.push('--renderer-process-limit=1', '--disable-gpu');
+  // A JavaScript heap cap makes a too-heavy page crash on its own instead of the whole server.
+  if (options.lowMemory) args.push('--renderer-process-limit=1', '--disable-gpu', '--js-flags=--max-old-space-size=160');
   const browser = await chromium.launch({ args });
   // Stopping closes the browser at once: a page that is loading fails and the crawl ends.
   const closeOnCancel = () => void browser.close();
@@ -96,13 +109,17 @@ const scanSite: Scanner = async (startUrl, options, onProgress) => {
     const desktop = await browser.newContext({ viewport: { width: 1366, height: 900 } });
     await desktop.addInitScript(observeSpeed);
     const mobile = await browser.newContext({ ...MOBILE_CONTEXT, deviceScaleFactor: capture.phoneScale });
-    if (options.guard) {
-      // Pages, redirects, scripts, images…: nothing may come from an internal network.
-      const guard = options.guard;
+    const { guard } = options;
+    if (guard || capture.skipIframes) {
       for (const context of [desktop, mobile]) {
-        await context.route('**/*', async (route) =>
-          (await guard(route.request().url())) ? route.continue() : route.abort('blockedbyclient'),
-        );
+        await context.route('**/*', async (route) => {
+          const request = route.request();
+          // "aborted" like the browser's own cancellations, so it isn't reported as a failed file.
+          if (capture.skipIframes && (isInsideIframe(request) || request.resourceType() === 'media')) return route.abort('aborted');
+          // Pages, redirects, scripts, images…: nothing may come from an internal network.
+          if (guard && !(await guard(request.url()))) return route.abort('blockedbyclient');
+          return route.continue();
+        });
       }
     }
     const check = async (url: string): Promise<UrlCheckResult> =>
@@ -280,7 +297,7 @@ async function visitPage(url: string, { desktop, mobile, capture }: BrowserSetup
     if (!(response.headers()['content-type'] ?? '').includes('html')) return { failure: { reason: 'notHtml' } };
     speed = await readSpeed(tab).catch(() => null);
     // Scroll down step by step so lazy images load (they count in the data and appear in the screenshot).
-    await scrollThrough(tab, capture.maxPageHeight);
+    if (capture.fullPage) await scrollThrough(tab, capture.maxPageHeight);
     dom = await extractPage(tab);
     await scrollToTop(tab);
     desktopShot = await screenshot(tab, capture);
@@ -313,7 +330,7 @@ async function visitPage(url: string, { desktop, mobile, capture }: BrowserSetup
     await phone.goto(page.url, { waitUntil: 'load', timeout: capture.navigationTimeoutMs });
     mobileData = await extractMobile(phone);
     // The whole page, top to bottom, so it can be scrolled through like on a real phone.
-    await scrollThrough(phone, capture.maxPageHeight);
+    if (capture.fullPage) await scrollThrough(phone, capture.maxPageHeight);
     await scrollToTop(phone);
     mobileShot = await screenshot(phone, capture);
   } catch {
@@ -347,6 +364,16 @@ async function testConsentCheckboxes(tab: Page, dom: DomData): Promise<void> {
   }
 }
 
+/** A request made by an embedded frame (or for its document), not by the page itself. */
+function isInsideIframe(request: Request): boolean {
+  try {
+    return request.frame().parentFrame() !== null;
+  } catch {
+    // Service worker requests have no frame.
+    return false;
+  }
+}
+
 /** Collects what happens on the network and in the console while the page loads. */
 function watchNetwork(tab: Page): Omit<NetworkData, 'resources' | 'metrics'> {
   const network: Omit<NetworkData, 'resources' | 'metrics'> = { requests: [], failedResources: [], jsErrors: [], mixedContent: [] };
@@ -374,9 +401,10 @@ function watchNetwork(tab: Page): Omit<NetworkData, 'resources' | 'metrics'> {
   return network;
 }
 
-/** A light full-page JPEG in CSS pixels (phone shots stay 375px wide), up to maxPageHeight. */
-async function screenshot(tab: Page, { maxPageHeight, jpegQuality }: CaptureSettings): Promise<Buffer | null> {
+/** A light JPEG in CSS pixels (phone shots stay 375px wide): the whole page up to maxPageHeight, or the first screen. */
+async function screenshot(tab: Page, { fullPage, maxPageHeight, jpegQuality }: CaptureSettings): Promise<Buffer | null> {
   try {
+    if (!fullPage) return await tab.screenshot({ type: 'jpeg', quality: jpegQuality, scale: 'css', timeout: 20_000 });
     const height = await tab.evaluate(() => document.documentElement.scrollHeight);
     const width = tab.viewportSize()?.width ?? 375;
     return await tab.screenshot({

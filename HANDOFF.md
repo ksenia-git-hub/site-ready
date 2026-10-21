@@ -147,10 +147,14 @@ npm run dev         # terminal 2: open http://localhost:5173 and scan localhost:
   - Limits on the 512 MB instance:
     - at most 3 pages per scan;
     - full-page screenshots capped at 5 000 px, phone rendered at 1×, JPEG quality 45;
+    - the content of embedded frames (maps, videos, widgets) and video/audio files is not loaded. On a real site three embedded Yandex maps took one page from ~190 MB to 1.3 GB, which crashed the free instance (HTTP 502). The iframe elements stay in the page and are still checked;
+    - the JavaScript heap of the scanned page is capped (160 MB): a page that is too heavy fails on its own instead of taking the server down;
     - 60 s page timeout;
     - screenshots kept for the last 3 reports only.
   - The page-count menu shows only what the server allows (`maxPages` in `/api/session`).
   - The instance sleeps after 15 minutes without visitors; waking up takes about a minute.
+  - If the server becomes unreachable during a scan (the hosting restarts it), the interface keeps waiting for up to 2 minutes. If the scan is lost, it explains that the site was probably too heavy for the demo server.
+  - Measured locally (Chromium memory, 3 pages): about 190 MB for a portfolio site with maps, 380 MB for apple.com/it (very heavy JavaScript).
   - New commits are deployed only after CI passes (`autoDeployTrigger: checksPass`).
 
 ## Known limitations

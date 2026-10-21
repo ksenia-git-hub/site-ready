@@ -98,4 +98,4 @@ Monorepo with npm workspaces, Node ≥ 24, TypeScript. CI is in `.github/workflo
   - If a check can be shown on the demo site, add the case to `server/test/demo-site.ts` and to `scanner.test.ts`.
 - The client only talks to `/api/...`: the Vite proxy handles it in development, the same server in production. No CORS.
 - Secrets go in `.env` (git-ignored); `.env.example` documents the variables.
-- Production uses the `Dockerfile`, which sets HOST, BLOCK_PRIVATE_TARGETS and TRUST_PROXY. On the hosting only `APP_PASSWORD` needs to be set. `render.yaml` deploys to Render Free with `LOW_MEMORY=true` (3 pages per scan, lighter screenshots, see `CaptureSettings` in `scanner.ts`).
+- Production uses the `Dockerfile`, which sets HOST, BLOCK_PRIVATE_TARGETS and TRUST_PROXY. On the hosting only `APP_PASSWORD` needs to be set. `render.yaml` deploys to Render Free with `LOW_MEMORY=true` (3 pages per scan, lighter screenshots, no iframe content or media, capped page JS heap; see `CaptureSettings` in `scanner.ts`).

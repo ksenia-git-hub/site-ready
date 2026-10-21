@@ -181,6 +181,7 @@
   },
   "api": {
     "invalidUrl": "Invalid address: enter a URL like https://www.example.com",
+    "serverRestarted": "The server restarted during the scan: the site is probably too heavy for the demo server. Try again with fewer pages.",
     "scanNotFound": "Scan not found (the server may have restarted).",
     "notFound": "Not found.",
     "httpError": "Server error (HTTP {{status}}).",

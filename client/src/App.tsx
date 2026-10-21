@@ -3,7 +3,7 @@ import { CircleAlert, Loader2, ServerOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { DEFAULT_MAX_PAGES, MAX_PAGES_LIMIT, type ScanJobView } from '@qa/shared';
-import { UNAUTHORIZED_EVENT, api } from './api.ts';
+import { ApiRequestError, UNAUTHORIZED_EVENT, api } from './api.ts';
 import { Header } from './components/Header.tsx';
 import { Home } from './components/Home.tsx';
 import { Login } from './components/Login.tsx';
@@ -18,6 +18,8 @@ type ApiState = 'checking' | 'online' | 'offline';
 type AuthState = 'checking' | 'required' | 'open' | 'loggedIn';
 
 const POLL_INTERVAL_MS = 1500;
+/** While the server is unreachable (e.g. the hosting restarts it), keep asking for this long. */
+const OUTAGE_PATIENCE_MS = 120_000;
 
 // The report (tabs, collapsibles, score ring...) is only downloaded once a scan finishes.
 const Report = lazy(() => import('./components/Report.tsx').then((module) => ({ default: module.Report })));
@@ -77,13 +79,26 @@ export function App() {
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout> | undefined;
 
+    let outageSince: number | null = null;
+    let hadOutage = false;
     const poll = async () => {
       try {
         const view = await api.getScan(jobId, controller.signal);
+        outageSince = null;
         setJob(view);
         if (view.status === 'queued' || view.status === 'running') timer = setTimeout(poll, POLL_INTERVAL_MS);
       } catch (pollError) {
-        if (!controller.signal.aborted) setRequestError(pollError);
+        if (controller.signal.aborted) return;
+        const error = pollError instanceof ApiRequestError ? pollError : null;
+        // A short outage: keep the progress screen and try again.
+        if (error?.isTemporary && Date.now() - (outageSince ??= Date.now()) < OUTAGE_PATIENCE_MS) {
+          hadOutage = true;
+          timer = setTimeout(poll, POLL_INTERVAL_MS * 2);
+          return;
+        }
+        // Back after an outage but the scan is gone: the server restarted, most likely out of memory.
+        const restarted = hadOutage && error?.code === 'scanNotFound';
+        setRequestError(restarted && error ? new ApiRequestError(error.status, { code: 'serverRestarted' }) : pollError);
       }
     };
     void poll();

@@ -7,12 +7,23 @@ export const UNAUTHORIZED_EVENT = 'site-ready:unauthorized';
 export class ApiRequestError extends Error {
   readonly status: number | null;
   readonly code: string | null;
+  /** The server's own message (Fastify validation errors), when there is one. */
+  readonly serverMessage: string | null;
 
   constructor(status: number | null, body: ApiError = {}) {
     super(body.message ?? (status === null ? 'Network error' : `HTTP ${status}`));
     this.name = 'ApiRequestError';
     this.status = status;
     this.code = body.code ?? null;
+    this.serverMessage = body.message ?? null;
+  }
+
+  /**
+   * The server can't be reached right now, but may be back soon: no connection, or the hosting's
+   * proxy answering for it while the app restarts (502/503/504).
+   */
+  get isTemporary(): boolean {
+    return this.status === null || this.status === 502 || this.status === 503 || this.status === 504;
   }
 }
 
