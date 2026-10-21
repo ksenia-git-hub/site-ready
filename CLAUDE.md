@@ -1,63 +1,101 @@
 # Site Ready
 
-Nome dell'app mostrato agli utenti: «Site Ready» in italiano e inglese, «Сайт Готов» in russo (chiave `app.name`). La cartella e i pacchetti restano `website-qa-assistant`.
+App name shown to users: "Site Ready" in Italian and English, «Сайт Готов» in Russian (key `app.name`). The folder and the packages keep the name `website-qa-assistant`.
 
-Strumento che controlla un sito prima della consegna al cliente: link, immagini, SEO, mobile, tecnico, contenuti dimenticati, legale (UE/Italia e Russia) e accessibilità. Produce un report con punteggio, screenshot e PDF, in italiano, inglese e russo.
+A tool that checks a website before it is handed over to the client. It covers links, images, SEO, mobile, speed, technical problems, leftover content, legal requirements (EU/Italy and Russia) and accessibility. It produces a report with a score, screenshots and a PDF view, in Italian, English and Russian.
 
-## Comandi
+## Commands
 
 ```bash
-npm run dev          # API (porta 3000) + Vite (porta 5173) insieme; aprire http://localhost:5173
-npm test             # tutti i test (vitest), compreso uno che avvia Chromium davvero
-npm run typecheck    # tsc su tutti i workspace
-npm run build        # compila il client in client/dist
-npm start            # solo server; se client/dist esiste serve anche l'interfaccia su :3000
-npm run demo-site    # siti di prova con errori voluti: http://localhost:4000 (italiano) e :4001 (negozio russo)
+npm run dev          # API (port 3000) + Vite (port 5173) together; open http://localhost:5173
+npm test             # all tests (vitest), including some that start a real Chromium
+npm run typecheck    # tsc on every workspace
+npm run build        # builds the client into client/dist
+npm start            # server only; when client/dist exists it also serves the interface on :3000
+npm run demo-site    # demo sites with deliberate mistakes: http://localhost:4000 (Italian) and :4001 (Russian shop)
 ```
 
-Primo setup su una macchina nuova: `npm install`, poi `npx playwright install chromium`.
+First setup on a new machine: `npm install`, then `npx playwright install chromium`.
 
-Su questa macchina Windows `node` potrebbe non essere nel PATH della sessione: in quel caso usare `C:\Program Files\nodejs\node.exe` oppure anteporre `C:\Program Files\nodejs` al PATH.
+On the author's Windows machine `node` may not be on the session PATH. In that case use `C:\Program Files\nodejs\node.exe` or prepend `C:\Program Files\nodejs` to PATH; in PowerShell call `npm.cmd`, because the execution policy blocks `npm.ps1`.
 
-## Struttura
+## Structure
 
-Monorepo con npm workspaces, Node ≥ 24, TypeScript.
+Monorepo with npm workspaces, Node ≥ 24, TypeScript. CI is in `.github/workflows/ci.yml`: typecheck, tests, build and a Docker build.
 
-- `shared/src/index.ts`: contratto dei dati tra server e client (`Issue`, `ScanReport`, `ScanJobView`, `CreateScanRequest`...). Se cambia un tipo qui, aggiornare entrambi i lati.
+- `shared/src/index.ts`: the data contract between server and client (`Issue`, `ScanReport`, `ScanJobView`, `CreateScanRequest`...). When a type changes here, update both sides.
 - `server/` (Fastify):
-  - `src/app.ts`: `buildApp()` con le rotte `GET /api/health`, `POST /api/scans` (risponde 202 con `{ id }`), `GET /api/scans/:id`, `POST /api/scans/:id/cancel` (ferma una scansione in coda o in corso; 409 se è già finita), `GET /api/scans/:id/screenshots/:page/:device` (JPEG), più il servizio di `client/dist` (file letti dal disco a ogni richiesta; un file mancante dà 404, non index.html).
-  - `src/auth.ts`: password unica (`APP_PASSWORD`), cookie di sessione firmato, limite ai tentativi. Con la password impostata, tutte le rotte `/api/*` tranne `health`, `session`, `login`, `logout` rispondono 401 `unauthorized` senza cookie.
-  - `src/scan/network-guard.ts`: con `BLOCK_PRIVATE_TARGETS=true` blocca gli indirizzi di reti interne (indirizzo iniziale nell’API; nel browser tramite `context.route`; nel controllo di link e immagini). Va tenuto attivo su qualsiasi server pubblico.
-  - `src/scan-queue.ts`: coda in memoria, una scansione alla volta (la scansione in corso riceve un `AbortSignal`: lo scanner chiude il browser e lancia `ScanCancelledError`), tiene gli ultimi 50 job, ma gli screenshot solo degli ultimi 10 perché occupano molta memoria. Si perde tutto al riavvio.
-  - `src/scan/scanner.ts`: `runScan`. Visita in ampiezza fino a `maxPages` pagine dello stesso dominio con Playwright, in contesto desktop (1366px) e mobile (375px), poi controlla via HTTP tutti i link e le immagini trovati.
-  - Regole **pure**, senza rete né browser, che trasformano i dati raccolti in `Issue`:
-    - `src/scan/checks.ts`: link, immagini, SEO della pagina, mobile;
-    - `src/scan/handover-checks.ts`: tecnico (errori JS, file falliti, mixed content), contenuti dimenticati (lorem ipsum, link a localhost/staging, testi demo dei CMS, contatti finti, TODO), legale (privacy, cookie policy, banner cookie se ci sono tracker, P.IVA per i siti italiani; per i siti russi — lang ru o dominio .ru/.su/.рф — consenso 152-ФЗ nei moduli, servizi esteri di analisi, ИНН/ОГРН dei negozi).
-    - `src/scan/cookie-checks.ts`: cookie di tracciamento salvati prima del consenso (il browser non clicca mai «Accetta»).
-  - `src/scan/accessibility.ts`: inietta axe-core nella pagina (dopo lo screenshot) e mappa le regole note sui codici `accessibility.*`; le regole senza testi tradotti diventano `accessibility.other` con il testo inglese di axe. Alcune regole sono disattivate perché già coperte o troppo rumorose (`DISABLED_RULES`).
-  - `src/scan/performance-checks.ts`: velocità (soglie condivise in `SPEED_THRESHOLDS` di `shared`). I dati vengono da `readSpeed` (Performance API, letta prima di scorrere la pagina) e da `watchResources` in `scanner.ts` (protocollo DevTools, cache disattivata). Lo screenshot del telefono è a pagina intera (max 15 000 px), dopo `scrollThrough` per caricare le immagini lazy.
-  - `src/scan/site-checks.ts`: controlli sull'intero sito che usano la rete (robots.txt, sitemap, favicon, risposta 404, HTTPS, scadenza del certificato). HTTPS e certificato vengono saltati per localhost e host di staging.
-  - Il browser raccoglie per ogni pagina i dati del DOM (`extract.ts`) e quelli di rete e console (`watchNetwork` in `scanner.ts`), e scatta uno screenshot desktop e uno mobile.
-  - `src/scan/extract.ts`: funzioni eseguite nel browser con `page.evaluate`. Non possono usare import o variabili esterne.
-  - `src/scan/http-check.ts`: HEAD con fallback a GET, timeout, limite di concorrenza.
-- `client/` (React 19 + Vite + **Tailwind CSS v4 + shadcn/ui**, icone **lucide-react**, tema con **next-themes**, notifiche con **sonner**):
-  - `App.tsx` gestisce gli stati home → progresso (polling ogni 1,5 s) → report. Il report viene caricato a parte (`lazy`).
-  - Le schermate sono in `src/components/`: `Home`, `ScanProgress`, `Report` (con `ScoreRing` e `IssueGroup`), più `Header` con `ThemeMenu` e `LanguageMenu`.
-  - `src/components/ui/` contiene i componenti shadcn generati: **non modificarli a mano**, aggiungine altri con `npx shadcn@latest add <nome>` dalla cartella `client`.
-  - `src/lib/`: `score.ts` (punteggio 0–100 e giudizio: per tipo di problema e quota di pagine coinvolte, suggerimenti esclusi, vedi i commenti nel file), `recent-scans.ts` (ultime scansioni in localStorage), `visuals.ts` (icone e colori per categoria e gravità).
-  - `src/format.ts` trasforma i codici del server in testo.
-- Colori: i token shadcn sono in `src/styles.css` (primario indaco), più `critical` / `warning` / `info` / `success` utilizzabili come classi Tailwind (`text-critical`, `bg-warning/10`...). Le classi `no-print` e `print-avoid-break` controllano la stampa/PDF.
-- `client/src/i18n/`: i18next + react-i18next, lingue **it** (riferimento), **en**, **ru**. I testi sono in `locales/*.json`. La lingua si sceglie dal menu con le bandiere (file SVG di `flag-icons`), viene ricordata in localStorage (`qa-language`), e se il browser è in un'altra lingua si usa l'inglese. Anche il tema viene ricordato (`qa-theme`).
+  - `src/app.ts`: `buildApp()` with these routes:
+    - `GET /api/health`;
+    - `POST /api/scans` (answers 202 with `{ id }`);
+    - `GET /api/scans/:id`;
+    - `POST /api/scans/:id/cancel` (stops a queued or running scan; 409 if it already finished);
+    - `GET /api/scans/:id/screenshots/:page/:device` (JPEG);
+    - `client/dist` as static files, read from disk on every request. A missing file gives 404, not index.html.
+  - `src/auth.ts`: a single password (`APP_PASSWORD`), a signed session cookie and a limit on login attempts. When the password is set, every `/api/*` route except `health`, `session`, `login` and `logout` answers 401 `unauthorized` without the cookie.
+  - `src/scan/network-guard.ts`: with `BLOCK_PRIVATE_TARGETS=true` it blocks internal-network addresses in three places: the starting URL in the API, the browser via `context.route`, and the link and image checks. It must stay on for any public server.
+  - `src/scan-queue.ts`: in-memory queue, one scan at a time.
+    - The running scan gets an `AbortSignal`: the scanner closes the browser and throws `ScanCancelledError`.
+    - It keeps the last 50 jobs, but screenshots only for the last 10, because they take a lot of memory.
+    - Everything is lost on restart.
+  - `src/scan/scanner.ts`: `runScan`. It visits up to `maxPages` pages of the same domain breadth-first with Playwright, in a desktop (1366 px) and a mobile (375 px) context. Then it checks every link and image found over HTTP.
+  - **Pure** rules, with no network and no browser, turn the collected data into `Issue`s:
+    - `src/scan/checks.ts`: links, images, page SEO, mobile.
+    - `src/scan/handover-checks.ts`:
+      - technical: JS errors, failed files, mixed content;
+      - leftover content: lorem ipsum, links to localhost/staging, CMS demo text, fake contacts, TODO;
+      - legal: privacy, cookie policy, a cookie banner when trackers are present, the VAT number for Italian sites;
+      - Russian sites (lang ru or a .ru/.su/.рф domain): 152-FZ consent in forms, foreign analytics services, INN/OGRN for shops.
+    - `src/scan/cookie-checks.ts`: tracking cookies stored before consent. The browser never clicks "Accept".
+  - `src/scan/accessibility.ts`: injects axe-core into the page (after the screenshot) and maps known rules to `accessibility.*` codes. Rules without translated texts become `accessibility.other` with axe's English text. Some rules are disabled because they are already covered or too noisy (`DISABLED_RULES`).
+  - `src/scan/performance-checks.ts`: speed. Thresholds are shared in `SPEED_THRESHOLDS` in `shared`.
+    - The data comes from `readSpeed` (the Performance API, read before scrolling the page) and from `watchResources` in `scanner.ts` (the DevTools protocol, cache disabled).
+    - Screenshots are full-page (max 15 000 px), taken after `scrollThrough` so lazy images load.
+  - `src/scan/site-checks.ts`: site-wide checks that use the network: robots.txt, sitemap, favicon, 404 response, HTTPS, certificate expiry. HTTPS and the certificate are skipped for localhost and staging hosts.
+  - For each page the browser collects DOM data (`extract.ts`) and network and console data (`watchNetwork` in `scanner.ts`), and takes one desktop and one mobile screenshot.
+  - `src/scan/extract.ts`: functions run in the browser with `page.evaluate`. They cannot use imports or outer variables.
+  - `src/scan/http-check.ts`: HEAD with a GET fallback, timeout and a concurrency limit.
+- `client/` (React 19 + Vite + **Tailwind CSS v4 + shadcn/ui**, icons from **lucide-react**, theme with **next-themes**, toasts with **sonner**):
+  - `App.tsx` handles the states: login (when required) → home → progress (polling every 1.5 s) → report. The report is loaded separately (`lazy`).
+  - Screens live in `src/components/`:
+    - `Login`, `Home`, `ScanProgress`;
+    - `Report`, with `ScoreRing`, `PriorityFixes`, `IssueGroup` and `PageGallery`;
+    - `Header`, with `ThemeMenu` and `LanguageMenu`.
+  - `src/components/ui/` holds the generated shadcn components: **do not edit them by hand**. Add new ones with `npx shadcn@latest add <name>` from the `client` folder.
+  - `src/lib/`:
+    - `score.ts`: the 0–100 score and verdict. It works per problem kind and share of affected pages; see the comments in the file;
+    - `recent-scans.ts`: recent scans in localStorage;
+    - `visuals.ts`: icons and colors for categories and severities.
+  - `src/format.ts` turns server codes into text.
+- Colors: the shadcn tokens are in `src/styles.css` (indigo primary). `critical` / `warning` / `info` / `success` are also available as Tailwind classes (`text-critical`, `bg-warning/10`...). The `no-print` and `print-avoid-break` classes control printing and the PDF.
+- `client/src/i18n/`: i18next + react-i18next, languages **it** (reference), **en** and **ru**. Texts are in `locales/*.json`.
+  - The language is chosen from the flag menu (SVG files from `flag-icons`) and remembered in localStorage (`qa-language`). If the browser is in another language, English is used.
+  - The theme is remembered too (`qa-theme`).
 
-## Convenzioni
+## Conventions
 
-- Il server esegue i `.ts` **direttamente** con il type stripping di Node, senza build. Quindi niente `enum`, `namespace` o parameter properties nei costruttori (`erasableSyntaxOnly`). Gli import interni usano l'estensione `.ts`.
-- **Il server non manda mai frasi**, solo codici e valori: `Issue.code` + `params`, `ScanProgress.step`, `ScanWarning.code`, `Failure.reason`, `ApiError.code`. Tutte le frasi sono nel client, tradotte. Commenti e nomi nel codice sono in inglese.
-- Per un **nuovo controllo**: aggiungi il codice in `ISSUE_CODES` (shared), produci l'issue nel file di regole giusto, poi scrivi `title` / `description` / `fix` in **tutte e tre** le lingue (`issues.<categoria>.<nome>`).
-  - I parametri array (`foundOn`, `pages`, `images`, `elements`) vengono mostrati come liste sotto la descrizione; un array con un nome nuovo va aggiunto in `ISSUE_LISTS` in `client/src/format.ts` e in `lists.*`.
-  - `count` gestisce i plurali: `_one`/`_other` in it/en, `_one`/`_few`/`_many`/`_other` in ru.
-- `client/src/i18n/locales.test.ts` fallisce se manca una chiave, una forma di plurale o un segnaposto in una lingua, o se un codice del server non ha testo.
-- Gravità: `critical` = da correggere prima della consegna; `warning` = da correggere; `info` = suggerimento. I siti esterni che bloccano i bot (401/403/429/999) sono `info`, non errori.
-- Nei test si usa uno scanner finto passato a `buildApp({ scanner })`. Le regole nuove si testano nel file di test della regola (`checks`, `handover-checks`, `cookie-checks`, `accessibility`); la pagina di esempio senza problemi è in `server/test/fixtures.ts`. Se un controllo si può dimostrare sul sito demo, aggiungere il caso in `server/test/demo-site.ts` e in `scanner.test.ts`.
-- Il client parla solo con `/api/...`: in sviluppo ci pensa il proxy di Vite, in produzione lo stesso server. Niente CORS.
-- I segreti vanno in `.env` (ignorato da git); `.env.example` documenta le variabili. In produzione si usa il `Dockerfile` (imposta HOST, BLOCK_PRIVATE_TARGETS e TRUST_PROXY); sull’hosting si imposta solo `APP_PASSWORD`.
+- The server runs `.ts` files **directly** with Node's type stripping, without a build. So no `enum`, `namespace` or constructor parameter properties (`erasableSyntaxOnly`). Internal imports use the `.ts` extension.
+- **The server never sends sentences**, only codes and values: `Issue.code` + `params`, `ScanProgress.step`, `ScanWarning.code`, `Failure.reason`, `ApiError.code`. Every sentence lives in the client, translated. Comments and names in the code are in English.
+- For a **new check**:
+  1. add the code to `ISSUE_CODES` (shared);
+  2. produce the issue in the right rules file;
+  3. write `title` / `description` / `fix` in **all three** languages (`issues.<category>.<name>`).
+
+  Notes:
+  - Array parameters (`foundOn`, `pages`, `images`, `elements`...) are shown as lists under the description. An array with a new name must be added to `ISSUE_LISTS` in `client/src/format.ts` and to `lists.*`.
+  - `count` drives plurals: `_one`/`_other` in it/en, `_one`/`_few`/`_many`/`_other` in ru.
+- `client/src/i18n/locales.test.ts` fails if a language is missing a key, a plural form or a placeholder, or if a server code has no text.
+- Severity:
+  - `critical`: fix before handover;
+  - `warning`: should be fixed;
+  - `info`: a suggestion.
+
+  External sites that block bots (401/403/429/999) are `info`, not errors.
+- Tests:
+  - API tests use a fake scanner passed to `buildApp({ scanner })`.
+  - New rules are tested in the rule's own test file (`checks`, `handover-checks`, `cookie-checks`, `accessibility`, `performance-checks`).
+  - The sample page with no problems is in `server/test/fixtures.ts`.
+  - If a check can be shown on the demo site, add the case to `server/test/demo-site.ts` and to `scanner.test.ts`.
+- The client only talks to `/api/...`: the Vite proxy handles it in development, the same server in production. No CORS.
+- Secrets go in `.env` (git-ignored); `.env.example` documents the variables.
+- Production uses the `Dockerfile`, which sets HOST, BLOCK_PRIVATE_TARGETS and TRUST_PROXY. On the hosting only `APP_PASSWORD` needs to be set.

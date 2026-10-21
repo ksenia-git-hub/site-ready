@@ -1,108 +1,169 @@
-# Handoff: stato del progetto
+# Handoff: project status
 
-_Aggiornato al 20 ottobre 2026._
+_Updated on 21 October 2026._
 
-## Dove siamo
+## Where we are
 
-Prima versione funzionante, **in locale**: frontend e backend sono completi e verificati. Non è ancora stato fatto nessun commit né il deploy.
+**Status:**
 
-### In breve: cosa abbiamo aggiunto e a cosa serve
+- The first complete version works locally: frontend, backend, tests and the Docker setup are done.
+- The repository is ready to be published on GitHub, with a README and CI.
+- Not deployed yet.
 
-| Cosa | A cosa serve |
+### What was built and why
+
+| What | Why |
 |---|---|
-| **Motore di scansione** (Playwright + Chromium) | Apre il sito come un vero browser, su desktop e telefono, e segue i link interni. |
-| **Controlli link e immagini** | Trovano pagine 404, immagini rotte o troppo pesanti prima che le veda il cliente. |
-| **Controlli SEO** | Evitano che il sito parta invisibile su Google (noindex, robots.txt, title, sitemap…). |
-| **Controlli mobile** | Segnalano le pagine che sul telefono si vedono male o scorrono di lato. |
-| **Controlli tecnici** | Trovano errori JavaScript, file che non si caricano e problemi di HTTPS/certificato. |
-| **Controlli contenuti** | Scovano ciò che resta dallo sviluppo: lorem ipsum, link a staging, contatti finti, TODO. |
-| **Controlli legali** | Ricordano privacy, cookie policy, banner cookie e P.IVA, obbligatori in Italia/UE. |
-| **Parte legale per la Russia** | Per i siti russi: consenso 152-ФЗ nei moduli, servizi esteri che raccolgono dati, ИНН/ОГРН dei negozi online, testi solo in lingua straniera (168-ФЗ). |
-| **Nome Site Ready / «Сайт Готов»** | Nome dell'app tradotto: «Сайт Готов» nella versione russa, «Site Ready» in italiano e inglese. |
-| **Cookie prima del consenso** | Scopre se Google Analytics, Meta Pixel & co. salvano cookie prima che il visitatore accetti: la violazione GDPR più sanzionata. |
-| **Controlli accessibilità** (axe-core) | Verificano che il sito sia usabile da persone con disabilità (European Accessibility Act). |
-| **Screenshot desktop e mobile** | Mostrano al cliente come appare ogni pagina, direttamente nel report. Screenshot a **pagina intera**, mostrati dentro mockup in stile Figma (canvas a puntini, etichette dei frame, portatile e telefono piatti); si scorrono dentro gli schermi, anche insieme. |
-| **Velocità** | Tempo di risposta del server, comparsa del contenuto principale (LCP), stabilità (CLS), peso e richieste di ogni pagina, più compressione, cache e formati delle immagini. |
-| **Punteggio per categoria** | Ogni riquadro di categoria ha il suo punteggio 0–100 e la barra è il punteggio stesso. Colori freddi nello stile dell’interfaccia: indaco/viola ottimo, blu buono, azzurro da migliorare, lampone da sistemare; anello e numeri a tinta unita, sfumatura solo nella barra. |
-| **Cosa sistemare per primo** | In cima al report, i 3–5 problemi che pesano di più sul punteggio, con «perché è importante» in parole semplici e un pulsante che apre il problema nell’elenco. I problemi di tutto il sito (robots.txt, HTTPS, privacy…) sono indicati come «tutto il sito». |
-| **Punteggio di qualità 0–100** | Dà un giudizio immediato e comprensibile anche a chi non è tecnico. Calcolato come Semrush / Ahrefs / SE Ranking: critici (peso 12), avvisi (peso 1,5) e suggerimenti (peso 0,25: 1–2 punti per tipo in una categoria), una volta per tipo di problema, in base alla quota di pagine coinvolte; 100 solo se non si trova nulla; curva 100·50/(50+penalità), mai 0. Scala: 90+ ottimo, 75–89 buono, 50–74 si può migliorare, sotto 50 da sistemare. |
-| **Report con filtri, ricerca e PDF** | Permette di lavorare sui problemi e di consegnare un documento pulito al cliente. |
-| **Italiano, inglese, russo** | Il report si può mandare nella lingua del cliente, anche dopo la scansione. |
-| **Interfaccia moderna** (Tailwind + shadcn/ui) | Aspetto professionale, tema chiaro/scuro, funziona anche sul telefono. |
-| **Filtri rapidi dal punteggio** | Cliccando «Critici», «Avvisi» o «Suggerimenti» nel riquadro del punteggio si salta all’elenco già filtrato. |
-| **Interrompi scansione** | Ferma una scansione in corso (indirizzo sbagliato, ripensamento) e riporta alla home con l'indirizzo nel campo da correggere. |
-| **Scansioni recenti** | Riapre al volo gli ultimi report dalla home. |
-| **Sito demo con errori voluti** | Permette di provare e testare l'app senza un sito vero (`npm run demo-site`). |
-| **96 test automatici** | Garantiscono che le modifiche future non rompano quello che già funziona. |
+| **Scan engine** (Playwright + Chromium) | Opens the site like a real browser, on desktop and on a phone, and follows the internal links. |
+| **Link and image checks** | Find 404 pages and broken or oversized images before the client sees them. |
+| **SEO checks** | Keep the site from launching invisible to search engines (noindex, robots.txt, title, sitemap…). |
+| **Mobile checks** | Flag pages that look broken on a phone or scroll sideways. |
+| **Technical checks** | Find JavaScript errors, files that fail to load and HTTPS/certificate problems. |
+| **Leftover content checks** | Find what is left over from development: lorem ipsum, staging links, fake contacts, TODOs. |
+| **Legal checks (EU/Italy)** | Privacy policy, cookie policy, cookie banner and VAT number (P.IVA), which are mandatory in Italy/EU. |
+| **Legal checks (Russia)** | For Russian sites: 152-FZ consent in forms, foreign services that collect data, INN/OGRN for online shops, interface text only in a foreign language (168-FZ). |
+| **Cookies before consent** | Detects Google Analytics, Meta Pixel & co. storing cookies before the visitor accepts: the most fined GDPR violation. |
+| **Accessibility** (axe-core) | Checks that people with disabilities can use the site (European Accessibility Act). |
+| **Desktop and phone screenshots** | Full-page screenshots shown in Figma-style device mock-ups inside the report. They scroll inside the screens, optionally together. |
+| **Speed** | Server response, Largest Contentful Paint (LCP), Cumulative Layout Shift (CLS), weight and requests of each page, plus compression, caching and image formats. |
+| **Quality score 0–100** | An immediate verdict that non-technical people understand too. See the details below. |
+| **Score per category** | Each category tile has its own 0–100 score, and the bar shows that score. |
+| **What to fix first** | The 3–5 problems that weigh most on the score, with a plain-language "why it matters" and a button that opens the problem in the list. |
+| **Report with filters, search and PDF** | Makes it easy to work through the problems and to hand a clean document to the client. |
+| **Italian, English, Russian** | The report can be shown in the client's language, even after the scan. |
+| **Modern interface** (Tailwind + shadcn/ui) | Professional look, light/dark theme, works on a phone too. |
+| **Stop scan, recent scans** | Stop a scan started by mistake; reopen recent reports from the home page. |
+| **Demo sites with deliberate mistakes** | Try and test the app without a real site (`npm run demo-site`). |
+| **96 automated tests + CI** | Make sure future changes don't break what already works. |
 
-### Cosa fa
+**How the score is computed:**
 
-1. Inserisci l'indirizzo di un sito e il numero massimo di pagine (1–50, predefinito 10).
-2. Il server apre il sito con Chromium (Playwright), segue i link interni e analizza ogni pagina sia su desktop sia su un telefono largo 375px.
-3. Controlla via HTTP tutti i link e le immagini trovati, poi il sito nel suo insieme (robots.txt, sitemap, HTTPS, pagine legali). Di ogni pagina scatta uno screenshot desktop e uno mobile.
-4. L'interfaccia (Tailwind + shadcn/ui, tema chiaro/scuro/automatico) mostra l'avanzamento per fasi con una barra di progresso, poi il report:
-   - punteggio di qualità da 0 a 100 con giudizio;
-   - card per categoria, tab, filtro per gravità e ricerca;
-   - problemi raggruppati per tipo, con "Come risolvere" copiabile;
-   - "Stampa / salva PDF", che apre tutti i dettagli prima di stampare.
-   - galleria "Come appare il sito" con gli screenshot di ogni pagina (si aprono ingranditi);
-   - la home mostra le ultime scansioni salvate nel browser.
-5. Tutto (interfaccia e report) è disponibile in **italiano, inglese e russo**, con selettore a bandiere nell'intestazione. La lingua si può cambiare anche dopo la scansione, per esempio per stampare il report nella lingua del cliente.
+- It follows the approach of SEO audit tools such as Semrush, Ahrefs and SE Ranking.
+- Weights: critical 12, warning 1.5, suggestion 0.25 (1–2 points per kind within a category).
+- Each kind of problem counts once, scaled by the share of affected pages.
+- Curve: 100·50/(50+penalty), so the score never reaches 0. A site scores 100 only when nothing is found.
+- Scale: 90+ excellent, 75–89 good, 50–74 could be better, below 50 needs fixes.
 
-### Controlli implementati
+**Score colors:** cool colors in the interface style, solid on the ring and the numbers, a gradient only on the bar.
 
-| Categoria | Controlli |
+| Verdict | Color |
 |---|---|
-| Link | 404/410 (critico), errori 5xx, dominio inesistente / timeout (30 s), link che funzionano ma rispondono dopo più di 10 s (avviso «pagina molto lenta»), link esterni che bloccano i bot (solo info) |
-| Immagini | file mancante, file > 500 KB, alt mancante (alt="" accettato), immagine molto più grande di come è mostrata |
-| SEO | title mancante / troppo corto o lungo / duplicato, meta description, H1 assente o multiplo, `lang` mancante, **noindex rimasto attivo**, favicon, anteprima social (Open Graph), **robots.txt che blocca tutto**, sitemap mancante, pagine inesistenti che rispondono 200 |
-| Mobile | meta viewport mancante, scorrimento orizzontale a 375px con gli elementi responsabili |
-| Tecnico | pagina 404 non personalizzata (pagina di errore del server senza link per tornare al sito), errori JavaScript, file della pagina che non si caricano (script, CSS, font), mixed content, sito senza HTTPS, HTTP che non porta su HTTPS, certificato SSL in scadenza (≤ 30 giorni) |
-| Contenuti | lorem ipsum, link o file da localhost / staging / IP locali, testi demo dei CMS ("Hello world!"), email e telefoni finti, TODO/FIXME |
-| Legale (Russia) | solo per siti in russo o con dominio .ru/.su/.рф: moduli che chiedono dati personali senza consenso 152-ФЗ, con consenso già spuntato, o con consenso solo come frase (dal 1/9/2025 va separato); servizi di analisi esteri (GA, GTM, Meta Pixel, Hotjar… — divieto di raccolta su DB esteri dal 1/7/2025, interpretazione discussa: segnalato come avviso); casella del consenso che il browser prova a spuntare come un visitatore (disattivata/nascosta/coperta = avviso); negozi senza ИНН/ОГРН; menu, pulsanti e titoli solo in lingua straniera nelle pagine in russo (168-ФЗ, dal 1/3/2026; marchi registrati possono fare eccezione). La P.IVA italiana non viene chiesta |
-| Velocità | per ogni pagina, misurata dal browser della scansione **senza rallentare la rete** (su rete mobile sarà più lento): risposta del server > 0,8 s, LCP > 2,5 s, CLS > 0,1, peso > 3 MB (soglie Google; il doppio = critico), più di 100 richieste, file di testo senza gzip/Brotli, file del sito senza cache del browser, JPG/PNG > 100 KB. Soglie in `SPEED_THRESHOLDS` (shared) |
-| Accessibilità | axe-core (contrasto, pulsanti/link/campi senza nome, ordine dei titoli, zoom bloccato, ARIA, iframe, video…: ~25 regole tradotte, le altre col testo inglese di axe) + link generici («clicca qui»). Il report avverte che non sostituisce una verifica manuale |
-| Legale | privacy policy, cookie policy, banner cookie se ci sono tracker (GA, Meta Pixel, Yandex Metrica...), P.IVA per i siti italiani, **cookie di tracciamento salvati prima del consenso** (il browser non clicca mai «Accetta»; vengono riconosciuti per nome i cookie di ~13 servizi noti, quelli tecnici sono ignorati) |
+| Excellent | indigo/violet |
+| Good | blue |
+| Could be better | cyan |
+| Needs fixes | raspberry |
 
-### Verifiche fatte
+### Checks
 
-- `npm test`: 96 test passati (compreso un test end-to-end sul negozio demo russo).
-  - Uno end-to-end scansiona con Chromium il sito demo e ritrova esattamente i 35 problemi messi apposta, con gli screenshot di tutte le pagine.
-  - I test delle traduzioni verificano che le tre lingue abbiano le stesse chiavi, i plurali e i segnaposto.
-- Lingue verificate da browser: cambio con le bandiere, scelta ricordata dopo il ricaricamento, browser in tedesco → inglese, browser in italiano → italiano. Le traduzioni russe e inglesi le ho scritte io: conviene che le rilegga qualcuno di madrelingua prima di mostrarle ai clienti.
-- `npm run typecheck` e `npm run build` senza errori.
-- Prova manuale da browser (server + sito demo): scansione in circa 3 secondi, report corretto, nessun errore in console, niente scorrimento orizzontale su mobile, tema chiaro e scuro, vista di stampa.
+| Category | Checks |
+|---|---|
+| Links | 404/410 (critical), 5xx errors, non-existent domain / timeout (30 s), links that work but answer after more than 10 s (warning "very slow page"), external links that block bots (info only) |
+| Images | missing file, file > 500 KB, missing alt (alt="" accepted), image much larger than displayed |
+| SEO | title missing / too short or long / duplicated, meta description, missing or multiple H1, missing `lang`, **forgotten noindex**, favicon, social preview (Open Graph), **robots.txt blocking everything**, missing sitemap, non-existent pages answering 200 |
+| Mobile | missing meta viewport, horizontal scrolling at 375 px with the elements responsible |
+| Speed | See the details below. |
+| Technical | default server 404 page (no links back to the site), JavaScript errors, page files that fail to load (scripts, CSS, fonts), mixed content, no HTTPS, HTTP not redirecting to HTTPS, SSL certificate expiring (≤ 30 days) |
+| Content | lorem ipsum, links or files from localhost / staging / local IPs, CMS demo text ("Hello world!"), fake e-mails and phone numbers, TODO/FIXME |
+| Legal | privacy policy, cookie policy, cookie banner when trackers are present (GA, Meta Pixel, Yandex Metrica...), VAT number for Italian sites, **tracking cookies stored before consent** |
+| Legal (Russia) | See the details below. |
+| Accessibility | axe-core (contrast, unnamed buttons/links/fields, heading order, zoom disabled, ARIA, iframes, video…: about 25 translated rules, the others with axe's English text) + generic link text ("click here"). The report warns that it does not replace a manual audit. |
 
-## Come provarlo
+**Speed details:**
+
+- Measured per page by the scan's own browser, **without network throttling**, so it will be slower on a mobile network.
+- Thresholds follow Google's; twice the threshold is critical:
+  - server response > 0.8 s;
+  - LCP > 2.5 s;
+  - CLS > 0.1;
+  - page weight > 3 MB.
+- Also flagged:
+  - more than 100 requests;
+  - text files without gzip/Brotli;
+  - site files without browser caching;
+  - JPG/PNG > 100 KB.
+- Thresholds are in `SPEED_THRESHOLDS` (shared).
+
+**Russian legal checks** run only for sites in Russian or on a .ru/.su/.рф domain. They flag:
+
+- Forms that ask for personal data:
+  - without 152-FZ consent;
+  - with the consent pre-ticked;
+  - with consent given only as a sentence: since 1 Sep 2025 it must be separate.
+- Foreign analytics services (GA, GTM, Meta Pixel, Hotjar…). Since 1 Jul 2025 collecting data into foreign databases is banned. The interpretation is debated, so this is a warning.
+- A consent checkbox the browser cannot tick the way a visitor would (disabled, hidden or covered): a warning.
+- Shops without INN/OGRN.
+- Menus, buttons and headings only in a foreign language on Russian pages (168-FZ, from 1 Mar 2026). Registered trademarks may be an exception.
+
+The Italian VAT number is not required on Russian sites.
+
+**How cookies before consent are detected:** the browser never clicks "Accept". Cookies from about 13 known services are recognized by name, and technical cookies are ignored.
+
+### Verification
+
+- `npm test`: 96 tests pass.
+  - The end-to-end tests scan the demo sites with Chromium and find exactly the planted problems (35 on the Italian site), with screenshots of every page. A second end-to-end test covers the Russian shop.
+  - The translation tests check that the three languages have the same keys, plural forms and placeholders.
+- `npm run typecheck` and `npm run build` pass.
+- Languages checked in the browser:
+  - switching with the flags works;
+  - the choice is remembered after a reload;
+  - a German browser falls back to English, an Italian one gets Italian.
+
+  The Russian and English translations were written by the AI and should be proofread by a native speaker.
+- Manual browser checks:
+  - a scan of the demo site takes about 3 seconds;
+  - no console errors;
+  - no horizontal scrolling on mobile;
+  - light and dark theme and the print view work.
+
+## How to try it
 
 ```bash
-npm run demo-site   # terminale 1: sito con errori voluti su :4000 e negozio russo su :4001
-npm run dev         # terminale 2: apri http://localhost:5173 e scansiona localhost:4000
+npm run demo-site   # terminal 1: site with deliberate mistakes on :4000 and Russian shop on :4001
+npm run dev         # terminal 2: open http://localhost:5173 and scan localhost:4000
 ```
 
-## Pubblicazione (pronta, manca solo l’hosting)
+## Deployment (ready, only the hosting is missing)
 
-- **Password** (`APP_PASSWORD`): se impostata, l’app chiede la password (una per tutti i colleghi); cookie firmato HttpOnly valido 30 giorni; max 10 tentativi sbagliati in 15 minuti per IP; pulsante «Esci». Senza password l’app è aperta (uso locale).
-- **Blocco reti interne** (`BLOCK_PRIVATE_TARGETS=true`): rifiuta localhost, 10.x, 172.16–31.x, 192.168.x, 169.254.x (metadati cloud) ecc. per l’indirizzo iniziale e per tutto ciò che la scansione apre (pagine, redirect, file, link, immagini).
-- **Limiti**: max 2 scansioni contemporanee per visitatore, max 20 in coda.
-- **Dockerfile**: Node 24 + Chromium di Playwright, build del client, utente non root, healthcheck su `/api/health`. Imposta già `HOST=0.0.0.0`, `BLOCK_PRIVATE_TARGETS=true`, `TRUST_PROXY=true`. Sull’hosting va impostato solo `APP_PASSWORD` (e se si vuole `SESSION_SECRET`). **Non ancora provato**: Docker non è installato su questo PC, la prima build si farà sull’hosting.
-- Memoria consigliata: **2 GB** (Chromium + screenshot a pagina intera).
+- **Password** (`APP_PASSWORD`):
+  - when set, the app asks for a password (one shared by all colleagues);
+  - the session is a signed HttpOnly cookie valid for 30 days;
+  - at most 10 wrong attempts in 15 minutes per IP;
+  - there is a "Log out" button.
 
-## Limiti noti
+  Without a password the app is open, which is fine for local use only.
+- **Internal-network blocking** (`BLOCK_PRIVATE_TARGETS=true`):
+  - refuses localhost, 10.x, 172.16–31.x, 192.168.x, 169.254.x (cloud metadata) and similar;
+  - applies to the starting URL and to everything the scan opens: pages, redirects, files, links and images.
+- **Limits:** at most 2 concurrent scans per visitor and 20 in the queue.
+- **Dockerfile:**
+  - contains Node 24 and Playwright's Chromium, builds the client, runs as a non-root user, health check on `/api/health`;
+  - already sets `HOST=0.0.0.0`, `BLOCK_PRIVATE_TARGETS=true` and `TRUST_PROXY=true`;
+  - on the hosting only `APP_PASSWORD` (and optionally `SESSION_SECRET`) needs to be set.
 
-- La coda è in memoria: i report si perdono al riavvio o a ogni nuova pubblicazione, e c’è una sola scansione alla volta.
-- Il blocco delle reti interne controlla l’IP al momento della risoluzione DNS: un attacco di «DNS rebinding» molto mirato resta teoricamente possibile.
-- I link verso pagine già visitate dal browser non vengono ricontrollati via HTTP; il conteggio "Link controllati" li esclude.
-- Limiti fissi: 500 link e 300 immagini per scansione (oltre compare un avviso nel report).
-- La velocità è misurata senza simulare una rete mobile e senza Lighthouse: è indicativa, non un punteggio Google ufficiale.
-- Alcuni controlli sono euristici e possono sbagliare: il banner cookie (riconosciuto da id/classi con "cookie"/"consent" o dalle piattaforme note), privacy/cookie policy (cercate nei link e nel testo delle pagine analizzate), P.IVA (cercata come "P.IVA" seguita da 11 cifre).
+  Docker is not installed on the development PC: the CI builds the image and checks `/api/health`.
+- Recommended memory: **2 GB** (Chromium and full-page screenshots).
 
-## Prossimi passi
+## Known limitations
 
-1. **GitHub**: l’utente crea un repository privato vuoto e manda l’indirizzo; poi `git remote add origin …` e `git push`.
-2. **Hosting** (da decidere): Render (pagamento con carta estera, piano con 2 GB) oppure un server cloud russo (Timeweb Cloud, Selectel, Yandex Cloud) con Docker. Lo stesso Dockerfile va bene per entrambi.
-3. Funzioni proposte e non ancora fatte:
-   - PDF con logo e dati dello studio;
-   - salvataggio dei report (database) e storico con confronto prima/dopo;
-   - suggerimenti dei termini (LCP, CLS, noindex…) e pulsante «non è un problema — nascondi».
-4. Il bundle JS principale pesa circa 530 KB (169 KB compresso), quasi tutto React + Radix + i18next: è normale, Vite mostra solo un avviso.
+- The queue is in memory: reports are lost on every restart or redeploy, and only one scan runs at a time.
+- The internal-network guard checks the IP at DNS resolution time. A targeted DNS-rebinding attack is still theoretically possible.
+- Links to pages the browser already visited are not checked again over HTTP. The "Links checked" count excludes them.
+- Fixed limits: 500 links and 300 images per scan. Beyond that, the report shows a warning.
+- Speed is measured without mobile network throttling and without Lighthouse: it is a guide, not an official Google score.
+- Some checks are heuristic and can be wrong:
+  - the cookie banner is recognized by ids/classes containing "cookie"/"consent" or by known platforms;
+  - the privacy and cookie policy are searched for in the links and text of the analyzed pages;
+  - the VAT number is searched for as "P.IVA" followed by 11 digits.
+
+## Next steps
+
+1. **GitHub:** publish the repository as public (it goes into a job application), with the commit e-mail replaced by the GitHub noreply address before the first push.
+2. **Hosting** (to be decided). The same Dockerfile works for both options:
+   - Render, paid with a foreign card, on a plan with 2 GB;
+   - a Russian cloud server (Timeweb Cloud, Selectel, Yandex Cloud) with Docker.
+3. Proposed features not done yet:
+   - PDF with the studio's logo and details;
+   - saved reports (database) and history with a before/after comparison;
+   - tooltips for terms (LCP, CLS, noindex…) and a "not a problem — hide" button.
+4. The main JS bundle is about 530 KB (169 KB compressed). It is almost all React, Radix and i18next, which is normal; Vite only shows a warning.
