@@ -1,0 +1,52 @@
+name: Memory check
+
+# Runs the production image with Render Free's limits (512 MB, LOW_MEMORY=true) and scans real
+# sites through the API, reporting the container's peak memory. Started by hand or by pushing the
+# memory-check branch; not part of normal CI because it depends on external sites.
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: Space-separated sites to scan
+        default: https://amawebstudio.com/ https://www.wikipedia.org/ https://www.apple.com/it/
+  push:
+    branches: [memory-check]
+
+permissions:
+  contents: read
+
+jobs:
+  memory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      URLS: ${{ inputs.urls || 'https://amawebstudio.com/ https://www.wikipedia.org/ https://www.apple.com/it/' }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t site-ready .
+      - name: Scan each site inside a 512 MB container
+        run: |
+          for url in $URLS; do
+            docker rm -f sr >/dev/null 2>&1 || true
+            # Same limits as Render Free: 512 MB, no swap, a tenth of a CPU.
+            docker run -d --name sr --memory=512m --memory-swap=512m --cpus=0.1 -e LOW_MEMORY=true -p 3000:3000 site-ready >/dev/null
+            for i in $(seq 1 60); do curl -fsS http://127.0.0.1:3000/api/health >/dev/null 2>&1 && break; sleep 2; done
+            id=$(curl -s -X POST -H 'content-type: application/json' -d "{\"url\":\"$url\",\"maxPages\":3}" http://127.0.0.1:3000/api/scans | sed -n 's/.*"id":"\([^"]*\)".*/\1/p')
+            status=unknown; step=""; started=$(date +%s)
+            for i in $(seq 1 300); do
+              body=$(curl -s -m 10 http://127.0.0.1:3000/api/scans/$id || true)
+              status=$(echo "$body" | sed -n 's/.*"status":"\([a-z]*\)".*/\1/p')
+              s=$(echo "$body" | sed -n 's/.*"step":"\([a-z]*\)".*/\1/p'); [ -n "$s" ] && step=$s
+              [ "$(docker inspect -f '{{.State.Running}}' sr)" != "true" ] && { status=crashed; break; }
+              [ "$status" = done ] || [ "$status" = failed ] && break
+              sleep 2
+            done
+            peak=$(docker exec sr cat /sys/fs/cgroup/memory.peak 2>/dev/null || echo 0)
+            oom=$(docker inspect -f '{{.State.OOMKilled}}' sr)
+            events=$(docker exec sr cat /sys/fs/cgroup/memory.events 2>/dev/null | tr '\n' ' ')
+            msg="$url -> $status (last step: ${step:-none}) in $(( $(date +%s) - started ))s, peak $(( peak / 1048576 )) MB, OOM killed: $oom, $events"
+            echo "$msg"
+            echo "::notice title=memory::$msg"
+            [ "$status" = failed ] && echo "::notice title=error::$(echo "$body" | head -c 300)"
+            docker logs sr 2>&1 | tail -5
+          done
