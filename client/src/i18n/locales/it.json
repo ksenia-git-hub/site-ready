@@ -184,6 +184,7 @@
     "serverRestarted": "Il server si è riavviato durante la scansione: probabilmente il sito è troppo pesante per il server di prova. Riprova con meno pagine.",
     "scanNotFound": "Scansione non trovata (forse il server è stato riavviato).",
     "notFound": "Risorsa non trovata.",
+    "hostingBusy": "Il server è sovraccarico e sta limitando le richieste. Attendi un minuto e riprova.",
     "httpError": "Errore del server (HTTP {{status}}).",
     "network": "Impossibile contattare il server.",
     "notCancellable": "La scansione è già terminata.",

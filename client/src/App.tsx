@@ -93,7 +93,7 @@ export function App() {
         // A short outage: keep the progress screen and try again.
         if (error?.isTemporary && Date.now() - (outageSince ??= Date.now()) < OUTAGE_PATIENCE_MS) {
           hadOutage = true;
-          timer = setTimeout(poll, POLL_INTERVAL_MS * 2);
+          timer = setTimeout(poll, error.isHostingLimit ? POLL_INTERVAL_MS * 4 : POLL_INTERVAL_MS * 2);
           return;
         }
         // Back after an outage but the scan is gone: the server restarted, most likely out of memory.

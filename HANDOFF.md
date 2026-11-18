@@ -34,7 +34,7 @@ _Updated on 21 October 2026._
 | **Modern interface** (Tailwind + shadcn/ui) | Professional look, light/dark theme, works on a phone too. |
 | **Stop scan, recent scans** | Stop a scan started by mistake; reopen recent reports from the home page. |
 | **Demo sites with deliberate mistakes** | Try and test the app without a real site (`npm run demo-site`). |
-| **99 automated tests + CI** | Make sure future changes don't break what already works. |
+| **102 automated tests + CI** | Make sure future changes don't break what already works. |
 
 **How the score is computed:**
 
@@ -100,7 +100,7 @@ The Italian VAT number is not required on Russian sites.
 
 ### Verification
 
-- `npm test`: 99 tests pass.
+- `npm test`: 102 tests pass.
   - The end-to-end tests scan the demo sites with Chromium and find exactly the planted problems (35 on the Italian site), with screenshots of every page. A second end-to-end test covers the Russian shop.
   - The translation tests check that the three languages have the same keys, plural forms and placeholders.
 - `npm run typecheck` and `npm run build` pass.

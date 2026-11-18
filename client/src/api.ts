@@ -20,10 +20,16 @@ export class ApiRequestError extends Error {
 
   /**
    * The server can't be reached right now, but may be back soon: no connection, or the hosting's
-   * proxy answering for it while the app restarts (502/503/504).
+   * proxy answering for it while the app restarts (502/503/504), or the hosting's proxy limiting
+   * requests (429 without one of our codes: our own 429s say why).
    */
   get isTemporary(): boolean {
-    return this.status === null || this.status === 502 || this.status === 503 || this.status === 504;
+    return this.status === null || this.status === 502 || this.status === 503 || this.status === 504 || this.isHostingLimit;
+  }
+
+  /** 429 from the hosting in front of the app (e.g. Render's proxy on a busy free instance). */
+  get isHostingLimit(): boolean {
+    return this.status === 429 && this.code === null;
   }
 }
 

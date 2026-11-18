@@ -75,6 +75,7 @@ export function apiErrorText(error: unknown, t: TFunction): string {
   if (!(error instanceof ApiRequestError) || error.status === null) return t('api.network');
   const known = API_ERROR_CODES.find((code) => code === error.code);
   if (known) return t(`api.${known}`);
+  if (error.isHostingLimit) return t('api.hostingBusy');
   // Fastify's own errors (e.g. validation) only come with an English message.
   return error.serverMessage || t('api.httpError', { status: error.status });
 }
