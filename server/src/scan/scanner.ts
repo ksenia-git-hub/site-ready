@@ -46,10 +46,11 @@ interface CaptureSettings {
 }
 const NORMAL_CAPTURE: CaptureSettings = { navigationTimeoutMs: 30_000, fullPage: true, maxPageHeight: 15_000, jpegQuality: 60, phoneScale: 2, skipIframes: false };
 /**
- * A tiny CPU loads pages slowly. Scrolling a photo-heavy page loads every image: one portfolio page
- * took the browser to 1.3 GB, so on 512 MB only the first screen is loaded and captured.
+ * A tiny CPU loads pages slowly, and on Linux full-page screenshots are what fills 512 MB.
+ * Measured in a 512 MB container (.github/workflows/memory-check.yml): with full-page shots a
+ * portfolio site and apple.com/it ran out of memory; with first-screen shots both finished.
  */
-const LOW_MEMORY_CAPTURE: CaptureSettings = { navigationTimeoutMs: 60_000, fullPage: true, maxPageHeight: 5_000, jpegQuality: 45, phoneScale: 1, skipIframes: true };
+const LOW_MEMORY_CAPTURE: CaptureSettings = { navigationTimeoutMs: 60_000, fullPage: false, maxPageHeight: 0, jpegQuality: 45, phoneScale: 1, skipIframes: true };
 /** Requests remembered per page (for dev links, trackers and mixed content). */
 const MAX_REQUESTS_PER_PAGE = 500;
 const MAX_LINKS = 500;

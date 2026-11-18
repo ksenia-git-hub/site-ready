@@ -9,7 +9,7 @@ Enter a URL. Site Ready opens the site in a real browser on desktop and on a pho
 **Live demo:** [site-ready.onrender.com](https://site-ready.onrender.com). The demo is password-protected; the password is available on request. It runs on Render's free instance:
 
 - the first visit after 15 idle minutes takes about a minute while the server wakes up;
-- a scan covers up to 3 pages and takes 1–2 minutes;
+- a scan covers up to 3 pages and takes 2–5 minutes;
 - it skips embedded maps and videos to stay within 512 MB.
 
 Run locally, the same scan takes about 30 seconds and up to 50 pages.
@@ -122,7 +122,7 @@ The image already sets `HOST=0.0.0.0`, `BLOCK_PRIVATE_TARGETS=true` and `TRUST_P
 **Render:** [render.yaml](render.yaml) is a Blueprint for Render's free instance. Render deploys each commit only after the CI checks pass. A free instance has 512 MB and a fraction of a CPU, so it runs with `LOW_MEMORY=true`:
 
 - at most 3 pages per scan;
-- lighter screenshots;
+- screenshots of the first screen only (full-page screenshots ran out of memory in a 512 MB container);
 - embedded maps and videos are not loaded (one page with three embedded maps needed 1.3 GB);
 - longer page timeouts;
 - fewer reports kept in memory.
